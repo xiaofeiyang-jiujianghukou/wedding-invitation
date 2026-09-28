@@ -1,0 +1,112 @@
+/**app.wxss — 全局主题（与 H5 版 src/styles/base.css 对齐）**/
+page {
+  --ivory: #faf6ef;
+  --paper: #fffdf8;
+  --gold: #b8935e;
+  --gold-deep: #9a7743;
+  --ink: #3a332a;
+  --ink-soft: #6f6557;
+  --rose: #c98a7d;
+
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: 'Songti SC', 'STSong', 'Noto Serif SC', 'SimSun', serif;
+  font-size: 28rpx;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+view,
+text,
+input,
+textarea,
+button,
+image,
+scroll-view,
+swiper {
+  box-sizing: border-box;
+}
+
+/* 幕标题 */
+.section-title {
+  display: block;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 600;
+  letter-spacing: 10rpx;
+  color: var(--gold-deep);
+  margin-bottom: 12rpx;
+}
+
+.section-sub {
+  display: block;
+  text-align: center;
+  font-size: 22rpx;
+  letter-spacing: 6rpx;
+  color: var(--ink-soft);
+  margin-bottom: 56rpx;
+}
+
+.section-sub::after {
+  content: '';
+  display: block;
+  width: 64rpx;
+  height: 1rpx;
+  background: var(--gold);
+  margin: 26rpx auto 0;
+}
+
+/* 表单字段 */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.field-label {
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  color: var(--ink-soft);
+}
+
+/* 通用按钮 */
+.pill-btn {
+  font-family: inherit;
+  font-size: 30rpx;
+  letter-spacing: 8rpx;
+  padding: 22rpx 44rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--gold);
+  background: transparent;
+  color: var(--gold-deep);
+  line-height: 1.4;
+}
+
+.pill-btn::after {
+  border: none;
+}
+
+.pill-btn.primary {
+  background: var(--gold);
+  color: var(--paper);
+  border-color: var(--gold);
+}
+
+.pill-btn[disabled] {
+  opacity: 0.4;
+}
+
+/* 提示文案 */
+.toast {
+  display: block;
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--rose);
+}
+
+.hint {
+  display: block;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--ink-soft);
+}

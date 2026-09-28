@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fffdf8",
+    "navigationBarTitleText": "婚礼请柬",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#faf6ef"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,35 @@
+node_modules
+dist
+*.local
+.DS_Store
+.env
+
+# Environment variables
+.env.local
+
+# 微信开发者工具本地缓存
+miniprogram_npm/
+
+# AI 工具生成的规则/缓存目录（体积大，非项目源码）
+.agents/
+.codebuddy/
+.lingma/
+.roo/
+.rules/
+rules/
+
+# 临时与回收站
+.Trash-0/
+*.tmp
+
+# 本地验证临时副本（.st-music 只保留 synth.py 与产物）
+.st-music/mp/
+.st-music/tmp/
+
+# 云存储上传密钥（若后续启用 CI 上传，切勿提交）
+private.*.key
+*.uploadkey
+
+# AI 生成的原始占位图（44MB，压缩版见 miniprogram/images/）
+# 换成真实照片后此目录会删除，不入库
+_assets/originals/

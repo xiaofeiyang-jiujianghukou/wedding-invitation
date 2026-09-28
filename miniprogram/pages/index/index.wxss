@@ -1,0 +1,836 @@
+/* 婚礼请柬 · 竖向整屏翻页样式 */
+
+/* ========== 页面根：容纳整屏 swiper 与悬浮层 ========== */
+.page-root {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+/* ========== 舞台：竖向整屏 swiper ========== */
+.stage {
+  width: 100%;
+  height: 100vh;
+}
+
+/* 每一幕：满屏，内容垂直居中 */
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 48rpx 140rpx;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+/* ========== 入场动画：淡入 + 上浮 ========== */
+/* 未进入本幕时保持隐藏，进入后依次浮出 */
+.rise {
+  opacity: 0;
+  transform: translateY(70rpx);
+}
+
+.screen.in .rise {
+  animation: riseIn 720ms cubic-bezier(0.22, 0.78, 0.3, 1) forwards;
+}
+
+/* 逐级错开，形成层次感 */
+.screen.in .rise.d1 { animation-delay: 80ms; }
+.screen.in .rise.d2 { animation-delay: 200ms; }
+.screen.in .rise.d3 { animation-delay: 320ms; }
+.screen.in .rise.d4 { animation-delay: 440ms; }
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(70rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 幕内可滚动区域（内容放不下的幕） */
+.scroll-area {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ========== ① 封面 ========== */
+.screen-cover {
+  background: radial-gradient(circle at 50% 18%, rgba(184, 147, 94, 0.14), transparent 55%), var(--paper);
+  text-align: center;
+}
+
+/* ========== 悬浮音乐唱片（全程可见，播放时旋转） ========== */
+.music-fab {
+  position: fixed;
+  top: 84rpx;
+  right: 40rpx;
+  z-index: 999;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.92);
+  border: 1rpx solid var(--gold);
+  box-shadow: 0 6rpx 24rpx rgba(58, 51, 42, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.78;
+  transition: opacity 300ms;
+}
+
+/* 播放中：唱片刻纹转起来，整体提亮 */
+.music-fab.on {
+  opacity: 1;
+}
+
+.music-disc {
+  width: 62rpx;
+  height: 62rpx;
+  border-radius: 50%;
+  border: 1rpx dashed var(--gold);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-fab.on .music-disc {
+  background: var(--gold);
+  border-color: rgba(255, 253, 248, 0.65);
+  animation: discSpin 6s linear infinite;
+}
+
+.music-note {
+  font-size: 30rpx;
+  line-height: 1;
+  color: var(--gold-deep);
+}
+
+.music-fab.on .music-note {
+  color: var(--paper);
+}
+
+@keyframes discSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.cover-line {
+  display: block;
+  font-size: 26rpx;
+  letter-spacing: 12rpx;
+  color: var(--ink-soft);
+  margin-bottom: 44rpx;
+}
+
+.cover-names {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16rpx;
+  font-size: 76rpx;
+  font-weight: 600;
+  letter-spacing: 8rpx;
+  color: var(--ink);
+}
+
+.cover-names .amp {
+  color: var(--rose);
+  font-size: 54rpx;
+}
+
+.cover-date {
+  display: block;
+  margin-top: 36rpx;
+  font-size: 28rpx;
+  letter-spacing: 4rpx;
+  color: var(--gold-deep);
+}
+
+.countdown {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 72rpx;
+}
+
+.cell {
+  width: 112rpx;
+  padding: 18rpx 0;
+  border: 1rpx solid rgba(184, 147, 94, 0.4);
+  border-radius: 18rpx;
+  background: rgba(255, 253, 248, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cell-num {
+  font-size: 40rpx;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.cell-label {
+  font-size: 20rpx;
+  color: var(--ink-soft);
+  letter-spacing: 4rpx;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 64rpx;
+  font-size: 22rpx;
+  letter-spacing: 6rpx;
+  color: var(--ink-soft);
+  animation: bob 2s ease-in-out infinite;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-12rpx);
+  }
+}
+
+/* ========== ② 时间轴 ========== */
+.timeline {
+  position: relative;
+  padding: 10rpx 0 10rpx 44rpx;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9rpx;
+  top: 22rpx;
+  bottom: 22rpx;
+  width: 1rpx;
+  background: linear-gradient(var(--gold), rgba(184, 147, 94, 0.15));
+}
+
+.node {
+  position: relative;
+  padding-bottom: 56rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.node:last-child {
+  padding-bottom: 10rpx;
+}
+
+.dot {
+  position: absolute;
+  left: -43rpx;
+  top: 14rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3rpx solid var(--gold);
+}
+
+.node-date {
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+  color: var(--gold-deep);
+}
+
+.node-title {
+  font-size: 34rpx;
+  letter-spacing: 4rpx;
+  margin: 6rpx 0 10rpx;
+  color: var(--ink);
+}
+
+.node-text {
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+/* ========== ③ 相册 · 全屏叠层轮播 · 方向飞出 · 万花筒 ========== */
+/* 照片铺满整屏，UI 绝对定位浮在照片之上。
+   弃用 swiper 的自动切换（其过渡只有水平平移），改为叠层 + 定时/手势驱动：
+   旧图按 config.dir 飞出，新图从反方向飞入，方向逐张可配。 */
+.screen-gallery {
+  position: relative;
+  padding: 0;
+  display: block;
+  background: #241f19;
+  overflow: hidden;
+}
+
+/* ---------- 叠层照片容器 ---------- */
+.gallery {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.shot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* move 层：飞入 / 飞出都打在这层。驻留时可见，其余隐藏 */
+.shot-move {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.shot-move.live,
+.shot-move.out { visibility: visible; }
+
+/* anim 层：驻留运镜（zoom/pull/pan/tilt/rise/sink/bloom）打在这层，
+   与 move 层的飞入飞出互不覆盖；delay 与飞入时长对齐，停稳后才开始 */
+.shot-anim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 底层：同图放大模糊，铺满全屏，做弥散景深底 */
+.shot-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(46rpx) saturate(1.12) brightness(0.9);
+  opacity: 0.6;
+  transform: scale(1.22);
+  z-index: 0;
+}
+
+/* 中层：主图，全屏铺满 */
+.shot-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  transform: scale(1.04);
+}
+
+/* ============================================================
+   飞入：方向 = config.dir 的反方向（dir=left 的图，从右飞入）
+   飞出：按 config.dir。时长 1100ms，八方向 + 旋转 + 缩放
+   ============================================================ */
+
+/* —— 飞出（旧图退场）—— */
+.dir-left.out  { animation: flyOutLeft  1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-right.out { animation: flyOutRight 1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-up.out    { animation: flyOutUp    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-down.out  { animation: flyOutDown  1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-lu.out    { animation: flyOutLU    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-ru.out    { animation: flyOutRU    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-ld.out    { animation: flyOutLD    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+.dir-rd.out    { animation: flyOutRD    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
+
+@keyframes flyOutLeft  { to { transform: translateX(-130%) rotate(-9deg)  scale(0.8);  opacity: 0; } }
+@keyframes flyOutRight { to { transform: translateX(130%)  rotate(9deg)   scale(0.8);  opacity: 0; } }
+@keyframes flyOutUp    { to { transform: translateY(-130%) rotate(-7deg)  scale(0.8);  opacity: 0; } }
+@keyframes flyOutDown  { to { transform: translateY(130%)  rotate(7deg)   scale(0.8);  opacity: 0; } }
+@keyframes flyOutLU    { to { transform: translate(-120%, -120%) rotate(-14deg) scale(0.72); opacity: 0; } }
+@keyframes flyOutRU    { to { transform: translate(120%, -120%)  rotate(14deg)  scale(0.72); opacity: 0; } }
+@keyframes flyOutLD    { to { transform: translate(-120%, 120%)  rotate(12deg)  scale(0.72); opacity: 0; } }
+@keyframes flyOutRD    { to { transform: translate(120%, 120%)   rotate(-12deg) scale(0.72); opacity: 0; } }
+
+/* —— 飞入（新图进场，反方向来）—— */
+.dir-left.live  { animation: flyInRight  1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-right.live { animation: flyInLeft   1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-up.live    { animation: flyInDown   1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-down.live  { animation: flyInUp     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-lu.live    { animation: flyInRD     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-ru.live    { animation: flyInLD     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-ld.live    { animation: flyInRU     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-rd.live    { animation: flyInLU     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+@keyframes flyInRight { from { transform: translateX(130%)  rotate(9deg)   scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInLeft  { from { transform: translateX(-130%) rotate(-9deg)  scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInDown  { from { transform: translateY(130%)  rotate(7deg)   scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInUp    { from { transform: translateY(-130%) rotate(-7deg)  scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInRD    { from { transform: translate(120%, 120%)   rotate(-12deg) scale(0.72); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInLD    { from { transform: translate(-120%, 120%)  rotate(12deg)  scale(0.72); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInRU    { from { transform: translate(120%, -120%)  rotate(14deg)  scale(0.72); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes flyInLU    { from { transform: translate(-120%, -120%) rotate(-14deg) scale(0.72); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ============================================================
+   驻留运镜：飞入停稳（delay 1100ms）后开始，呼吸到下一张
+   时长 5100ms，与轮播周期（6000ms）衔接
+   ============================================================ */
+
+.fx-zoom.live  { animation: fxZoom  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-pull.live  { animation: fxPull  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-pan-l.live { animation: fxPanL  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-pan-r.live { animation: fxPanR  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-tilt.live  { animation: fxTilt  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-rise.live  { animation: fxRise  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-sink.live  { animation: fxSink  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
+.fx-bloom.live { animation: fxBloom 5100ms cubic-bezier(0.3, 0.7, 0.4, 1)      1100ms both; }
+
+@keyframes fxZoom {
+  from { transform: scale(1.13); }
+  to   { transform: scale(1.02); }
+}
+@keyframes fxPull {
+  from { transform: scale(0.94) translateY(-16rpx); }
+  to   { transform: scale(1.03) translateY(0); }
+}
+@keyframes fxPanL {
+  from { transform: scale(1.16) translateX(34rpx); }
+  to   { transform: scale(1.07) translateX(-20rpx); }
+}
+@keyframes fxPanR {
+  from { transform: scale(1.16) translateX(-34rpx); }
+  to   { transform: scale(1.07) translateX(20rpx); }
+}
+@keyframes fxTilt {
+  from { transform: scale(1.14) rotate(-2deg); }
+  to   { transform: scale(1.04) rotate(0.5deg); }
+}
+@keyframes fxRise {
+  from { transform: scale(1.13) translateY(38rpx); }
+  to   { transform: scale(1.04) translateY(-16rpx); }
+}
+@keyframes fxSink {
+  from { transform: scale(1.14) translateY(-34rpx); }
+  to   { transform: scale(1.03) translateY(14rpx); }
+}
+@keyframes fxBloom {
+  0%   { transform: scale(1.09); filter: brightness(0.55) saturate(0.65) blur(8rpx); }
+  30%  { transform: scale(1.07); filter: brightness(1.05) saturate(1.05) blur(0); }
+  100% { transform: scale(1.02); filter: brightness(1) saturate(1) blur(0); }
+}
+
+/* 弥散底呼吸（非万花筒图才有 blur 底） */
+.shot-anim.live .shot-blur {
+  animation: blurBreath 5100ms ease-in-out infinite alternate;
+}
+@keyframes blurBreath {
+  from { transform: scale(1.16); opacity: 0.5; }
+  to   { transform: scale(1.28); opacity: 0.68; }
+}
+
+/* ============================================================
+   万花筒：四份镜像旋转叠加，kaleido 图专用（kaleido: true）
+   底层实图 + 三层 screen 混合镜像；镜像群在 90° 旋转下自同构，
+   转 90 度即无缝回环。不支持 blend 的环境退化为淡叠加，不难看。
+   ============================================================ */
+.kp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+}
+.kp1 { z-index: 1; }
+.kp2, .kp3, .kp4 {
+  z-index: 2;
+  opacity: 0.34;
+  mix-blend-mode: screen;
+}
+
+.shot-anim.live .kp1 { animation: kalSpin1 6200ms linear infinite; }
+.shot-anim.live .kp2 { animation: kalSpin2 6200ms linear infinite; }
+.shot-anim.live .kp3 { animation: kalSpin3 6200ms linear infinite; }
+.shot-anim.live .kp4 { animation: kalSpin4 6200ms linear infinite; }
+
+@keyframes kalSpin1 { from { transform: rotate(0deg); } to { transform: rotate(90deg); } }
+@keyframes kalSpin2 { from { transform: scaleX(-1) rotate(0deg); } to { transform: scaleX(-1) rotate(90deg); } }
+@keyframes kalSpin3 { from { transform: scaleY(-1) rotate(0deg); } to { transform: scaleY(-1) rotate(90deg); } }
+@keyframes kalSpin4 { from { transform: scale(-1, -1) rotate(0deg); } to { transform: scale(-1, -1) rotate(90deg); } }
+
+/* 底部浮层：文案 + 进度点 */
+.gallery-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 86rpx;
+  z-index: 2;
+  padding: 0 56rpx;
+}
+
+.shot-caption {
+  padding-left: 30rpx;
+  position: relative;
+  margin-bottom: 42rpx;
+}
+
+/* ---------- 文案入场：按图片动效换方向，图文「同一口气」 ---------- */
+.shot-text {
+  display: block;
+  font-size: 34rpx;
+  letter-spacing: 6rpx;
+  color: #fffdf8;
+  text-shadow: 0 2rpx 18rpx rgba(0, 0, 0, 0.62);
+  animation: capIn 820ms cubic-bezier(0.16, 0.84, 0.28, 1) 260ms both;
+}
+
+/* 从左滑入 */
+.fx-cap-zoom .shot-text,
+.fx-cap-pull .shot-text,
+.fx-cap-pan-l .shot-text { animation-name: capInL; }
+
+/* 从右滑入 */
+.fx-cap-pan-r .shot-text,
+.fx-cap-tilt .shot-text { animation-name: capInR; }
+
+/* 从下方浮起（配上摇/俯冲） */
+.fx-cap-rise .shot-text,
+.fx-cap-sink .shot-text { animation-name: capInU; }
+
+/* 淡入 + 字距收拢（配柔光绽放） */
+.fx-cap-bloom .shot-text { animation-name: capInBloom; }
+
+@keyframes capIn {
+  from { opacity: 0; transform: translateX(-30rpx); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes capInL {
+  from { opacity: 0; transform: translateX(-46rpx); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes capInR {
+  from { opacity: 0; transform: translateX(46rpx); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes capInU {
+  from { opacity: 0; transform: translateY(34rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes capInBloom {
+  from { opacity: 0; letter-spacing: 18rpx; filter: blur(6rpx); }
+  to   { opacity: 1; letter-spacing: 6rpx; filter: blur(0); }
+}
+
+.shot-caption::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4rpx;
+  height: 34rpx;
+  background: var(--gold);
+  border-radius: 2rpx;
+  animation: barGrow 620ms cubic-bezier(0.16, 0.84, 0.28, 1) 200ms both;
+}
+
+@keyframes barGrow {
+  from { transform: translateY(-50%) scaleY(0.2); opacity: 0; }
+  to   { transform: translateY(-50%) scaleY(1); opacity: 1; }
+}
+
+/* 进度点：20 个细点，当前最长最亮 */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}
+
+.dot-i {
+  width: 10rpx;
+  height: 4rpx;
+  border-radius: 3rpx;
+  background: rgba(255, 253, 248, 0.34);
+  transition: all 320ms ease;
+}
+
+.dot-i.on {
+  width: 34rpx;
+  background: var(--gold);
+}
+
+
+/* ========== ④ 婚礼信息 ========== */
+.date-card {
+  text-align: center;
+}
+
+.m-d {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  font-size: 88rpx;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 4rpx;
+}
+
+.m-d .unit {
+  font-size: 30rpx;
+  color: var(--gold-deep);
+  margin: 0 10rpx;
+}
+
+.week {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  letter-spacing: 6rpx;
+  color: var(--ink-soft);
+}
+
+.venue {
+  margin-top: 48rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.venue-name {
+  font-size: 32rpx;
+  letter-spacing: 4rpx;
+  color: var(--ink);
+}
+
+.venue-addr {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: var(--ink-soft);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  margin-top: 30rpx;
+}
+
+.schedule {
+  margin-top: 56rpx;
+  border-top: 1rpx dashed rgba(184, 147, 94, 0.4);
+}
+
+.schedule-row {
+  display: flex;
+  align-items: baseline;
+  gap: 36rpx;
+  padding: 22rpx 8rpx;
+  border-bottom: 1rpx dashed rgba(184, 147, 94, 0.4);
+}
+
+.schedule-time {
+  font-size: 28rpx;
+  color: var(--gold-deep);
+  font-weight: 600;
+  min-width: 90rpx;
+}
+
+.schedule-event {
+  font-size: 28rpx;
+  color: var(--ink);
+}
+
+/* ========== ⑤⑥ 表单 ========== */
+.screen-form {
+  justify-content: flex-start;
+  padding-top: 90rpx;
+}
+
+.form,
+.wish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  width: 100%;
+  padding-bottom: 40rpx;
+}
+
+/* 输入框：保证高度足够、placeholder 可见 */
+.input {
+  width: 100%;
+  height: 92rpx;
+  min-height: 92rpx;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 30rpx;
+  color: var(--ink);
+  background: var(--ivory);
+  border: 1rpx solid rgba(184, 147, 94, 0.35);
+  border-radius: 16rpx;
+  padding: 0 28rpx;
+}
+
+/* placeholder 样式必须带 !important 才能压过组件内部默认值 */
+.input-ph {
+  color: #b3a894 !important;
+  font-size: 28rpx !important;
+  letter-spacing: 2rpx !important;
+}
+
+.textarea {
+  width: 100%;
+  height: 170rpx;
+  min-height: 170rpx;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 30rpx;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--ivory);
+  border: 1rpx solid rgba(184, 147, 94, 0.35);
+  border-radius: 16rpx;
+  padding: 22rpx 28rpx;
+}
+
+.radio-row {
+  display: flex;
+  gap: 40rpx;
+  padding: 6rpx 0;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 28rpx;
+  color: var(--ink-soft);
+}
+
+.radio-dot {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(154, 119, 67, 0.5);
+  background: var(--ivory);
+}
+
+.radio.active {
+  color: var(--ink);
+}
+
+.radio.active .radio-dot {
+  border-color: var(--gold-deep);
+  background: radial-gradient(circle, var(--gold-deep) 0 40%, transparent 45%);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+}
+
+.step-btn {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  border: 1rpx solid var(--gold);
+  color: var(--gold-deep);
+  font-size: 38rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.step-val {
+  min-width: 64rpx;
+  text-align: center;
+  font-size: 34rpx;
+  color: var(--ink);
+}
+
+.summary {
+  display: block;
+  margin-top: 10rpx;
+  text-align: center;
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: var(--ink-soft);
+}
+
+/* ========== ⑥ 祝福墙列表 ========== */
+.wall-scroll {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: 20rpx;
+}
+
+.wall {
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx;
+  padding-bottom: 40rpx;
+}
+
+.wall-item {
+  background: var(--ivory);
+  border: 1rpx solid rgba(184, 147, 94, 0.25);
+  border-radius: 22rpx;
+  padding: 26rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.wall-text {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+.wall-from {
+  margin-top: 10rpx;
+  align-self: flex-end;
+  font-size: 24rpx;
+  color: var(--ink-soft);
+  letter-spacing: 2rpx;
+}
+
+/* ========== ⑦ 尾幕 ========== */
+.screen-ending {
+  text-align: center;
+  background: radial-gradient(circle at 50% 100%, rgba(184, 147, 94, 0.12), transparent 60%), var(--paper);
+}
+
+.screen-ending .divider {
+  display: block;
+  color: var(--gold);
+  font-size: 44rpx;
+  margin-bottom: 56rpx;
+}
+
+.thanks {
+  display: block;
+  font-size: 30rpx;
+  line-height: 2;
+  color: var(--ink-soft);
+  letter-spacing: 2rpx;
+  white-space: pre-line;
+}
+
+.ending-names {
+  display: block;
+  margin-top: 64rpx;
+  font-size: 34rpx;
+  letter-spacing: 8rpx;
+  color: var(--gold-deep);
+}

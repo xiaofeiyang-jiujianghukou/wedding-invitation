@@ -1,0 +1,65 @@
+:root {
+  --ivory: #faf6ef;
+  --paper: #fffdf8;
+  --gold: #b8935e;
+  --gold-deep: #9a7743;
+  --ink: #3a332a;
+  --ink-soft: #6f6557;
+  --rose: #c98a7d;
+  --serif: 'Noto Serif SC Variable', 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--paper);
+  box-shadow: 0 0 40px rgba(58, 51, 42, 0.08);
+}
+
+section {
+  padding: 64px 28px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  color: var(--gold-deep);
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--ink-soft);
+  margin-bottom: 40px;
+}
+
+.section-sub::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: var(--gold);
+  margin: 16px auto 0;
+}

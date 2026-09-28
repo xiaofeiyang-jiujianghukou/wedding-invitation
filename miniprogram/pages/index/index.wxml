@@ -1,0 +1,285 @@
+<!-- 婚礼请柬 · 竖向整屏翻页（7 幕） -->
+<view class="page-root">
+
+<swiper class="stage" vertical circular="{{false}}" duration="420" easing-function="easeOutCubic"
+  bindchange="onStageChange">
+
+  <!-- ① 封面 + 倒计时 -->
+  <swiper-item>
+    <view class="screen screen-cover {{current === 0 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="cover-line">{{ config.coverLine }}</text>
+      </view>
+      <view class="rise d2">
+        <view class="cover-names">
+          <text>{{ config.groom }}</text>
+          <text class="amp">&amp;</text>
+          <text>{{ config.bride }}</text>
+        </view>
+      </view>
+      <view class="rise d3">
+        <text class="cover-date">{{ dateText }}</text>
+      </view>
+
+      <view class="rise d4">
+        <view class="countdown">
+          <view class="cell">
+            <text class="cell-num">{{ remain.d }}</text>
+            <text class="cell-label">天</text>
+          </view>
+          <view class="cell">
+            <text class="cell-num">{{ remain.h }}</text>
+            <text class="cell-label">时</text>
+          </view>
+          <view class="cell">
+            <text class="cell-num">{{ remain.m }}</text>
+            <text class="cell-label">分</text>
+          </view>
+          <view class="cell">
+            <text class="cell-num">{{ remain.s }}</text>
+            <text class="cell-label">秒</text>
+          </view>
+        </view>
+      </view>
+
+      <text class="scroll-hint">上滑开启邀请 ↑</text>
+    </view>
+  </swiper-item>
+
+  <!-- ② 我们的故事 -->
+  <swiper-item>
+    <view class="screen {{current === 1 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="section-title">我们的故事</text>
+        <text class="section-sub">OUR STORY</text>
+      </view>
+
+      <scroll-view class="scroll-area" scroll-y>
+        <view class="timeline">
+          <view class="node rise d2" wx:for="{{ config.story }}" wx:key="title">
+            <view class="dot"></view>
+            <text class="node-date">{{ item.date }}</text>
+            <text class="node-title">{{ item.title }}</text>
+            <text class="node-text">{{ item.text }}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </swiper-item>
+
+  <!-- ③ 相册 · 全屏叠层轮播 · 飞出方向逐张可配 · 偶尔万花筒 -->
+  <swiper-item>
+    <view class="screen screen-gallery {{current === 2 ? 'in' : ''}}">
+
+      <!-- 叠层照片：只渲染当前张（入场）与上一张（退场），wx:if 重建节点保证动画必播。
+           旧图按 config.dir 飞出，新图从反方向飞入；横向滑动切图，竖向留给外层翻幕。 -->
+      <view class="gallery"
+        bindtouchstart="galleryTouchStart"
+        bindtouchend="galleryTouchEnd">
+        <block wx:for="{{ config.gallery }}" wx:key="caption">
+          <view wx:if="{{index === galleryIndex || index === galleryPrev}}" class="shot">
+            <!-- move 层：负责飞入(fly-in-*)与飞出(fly-out-*) -->
+            <view class="shot-move dir-{{item.dir}} {{index === galleryIndex ? 'live' : 'out'}}">
+              <!-- anim 层：驻留运镜 fx-*；万花筒图渲染四镜像 -->
+              <view class="shot-anim fx-{{item.fx}} {{index === galleryIndex ? 'live' : ''}}">
+                <block wx:if="{{item.kaleido}}">
+                  <image class="shot-main kp kp1" src="{{item.src}}" mode="aspectFill" />
+                  <image class="shot-main kp kp2" src="{{item.src}}" mode="aspectFill" />
+                  <image class="shot-main kp kp3" src="{{item.src}}" mode="aspectFill" />
+                  <image class="shot-main kp kp4" src="{{item.src}}" mode="aspectFill" />
+                </block>
+                <block wx:else>
+                  <image class="shot-blur" src="{{item.src}}" mode="aspectFill" />
+                  <image class="shot-main" src="{{item.src}}" mode="aspectFill" />
+                </block>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 顶层遮罩：上下渐隐，保证文字可读 -->
+      <view class="gallery-scrim"></view>
+
+      <!-- 浮层 UI：章节标签（顶部） -->
+      <view class="rise d1 gallery-head">
+        <view class="chapter-tag">
+          <text class="chapter-name">{{ galleryChapter }}</text>
+          <text class="chapter-count">{{ galleryIndex + 1 }} / {{ config.gallery.length }}</text>
+        </view>
+      </view>
+
+      <!-- 浮层 UI：文案（底部）+ 进度点。单元素循环强制重建节点，让动画每次切图都重播 -->
+      <view class="rise d2 gallery-foot">
+        <view class="shot-caption fx-cap-{{config.gallery[galleryIndex].fx}}">
+          <block wx:for="{{ [config.gallery[galleryIndex]] }}" wx:key="*this">
+            <text class="shot-text">{{ item.caption }}</text>
+          </block>
+        </view>
+        <view class="dots">
+          <view class="dot-i {{galleryIndex === index ? 'on' : ''}}" wx:for="{{ config.gallery }}" wx:key="caption"></view>
+        </view>
+      </view>
+    </view>
+  </swiper-item>
+
+
+  <!-- ④ 婚礼信息 -->
+  <swiper-item>
+    <view class="screen {{current === 3 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="section-title">婚礼信息</text>
+        <text class="section-sub">WEDDING INFO</text>
+      </view>
+
+      <view class="rise d2">
+        <view class="date-card">
+          <view class="m-d">
+            <text>{{ info.month }}</text>
+            <text class="unit">月</text>
+            <text>{{ info.day }}</text>
+            <text class="unit">日</text>
+          </view>
+          <text class="week">{{ info.weekday }} · {{ info.time }}</text>
+        </view>
+      </view>
+
+      <view class="rise d3">
+        <view class="venue">
+          <text class="venue-name">{{ config.venue.name }}</text>
+          <text class="venue-addr">{{ config.venue.address }}</text>
+          <view class="actions">
+            <view class="pill-btn primary" bindtap="openLocation">导航前往</view>
+            <view class="pill-btn" bindtap="copyAddress">{{ copied ? '已复制' : '复制地址' }}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="rise d4">
+        <view class="schedule">
+          <view class="schedule-row" wx:for="{{ config.schedule }}" wx:key="time">
+            <text class="schedule-time">{{ item.time }}</text>
+            <text class="schedule-event">{{ item.event }}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </swiper-item>
+
+  <!-- ⑤ 赴约登记 RSVP -->
+  <swiper-item>
+    <view class="screen screen-form {{current === 4 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="section-title">赴约登记</text>
+        <text class="section-sub">RSVP</text>
+      </view>
+
+      <scroll-view class="scroll-area" scroll-y>
+        <view class="form rise d2">
+          <view class="field">
+            <text class="field-label">姓名 *</text>
+            <input class="input" maxlength="20" placeholder="怎么称呼你" placeholder-class="input-ph"
+              value="{{form.name}}" bindinput="onNameInput" />
+          </view>
+
+          <view class="field">
+            <text class="field-label">手机</text>
+            <input class="input" maxlength="20" type="number" placeholder="方便联系（选填）" placeholder-class="input-ph"
+              value="{{form.phone}}" bindinput="onPhoneInput" />
+          </view>
+
+          <view class="radio-row">
+            <view class="radio {{form.attending ? 'active' : ''}}" data-val="{{true}}" bindtap="setAttending">
+              <view class="radio-dot"></view>
+              <text>准时到场</text>
+            </view>
+            <view class="radio {{form.attending ? '' : 'active'}}" data-val="{{false}}" bindtap="setAttending">
+              <view class="radio-dot"></view>
+              <text>遗憾缺席</text>
+            </view>
+          </view>
+
+          <view class="field" wx:if="{{form.attending}}">
+            <text class="field-label">同行人数</text>
+            <view class="stepper">
+              <view class="step-btn" bindtap="decCount">−</view>
+              <text class="step-val">{{ form.count }}</text>
+              <view class="step-btn" bindtap="incCount">＋</view>
+            </view>
+          </view>
+
+          <view class="field">
+            <text class="field-label">留言</text>
+            <textarea class="textarea" maxlength="100" placeholder="饮食禁忌或其他想告诉我们的（选填）"
+              placeholder-class="input-ph" value="{{form.note}}" bindinput="onNoteInput" />
+          </view>
+
+          <button class="pill-btn primary" disabled="{{!valid || submitting}}" bindtap="submitRsvp">
+            {{ submitting ? '提交中…' : '提交回执' }}
+          </button>
+
+          <text class="toast" wx:if="{{done}}">收到啦，感谢你的回复 ❤</text>
+          <text class="summary">已收到 {{ rsvpTotal }} 份回执</text>
+        </view>
+      </scroll-view>
+    </view>
+  </swiper-item>
+
+  <!-- ⑥ 祝福墙 -->
+  <swiper-item>
+    <view class="screen screen-form {{current === 5 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="section-title">祝福墙</text>
+        <text class="section-sub">WISHES</text>
+      </view>
+
+      <view class="wish-form rise d2">
+        <input class="input" maxlength="20" placeholder="你的名字" placeholder-class="input-ph"
+          value="{{wishForm.name}}" bindinput="onWishNameInput" />
+        <textarea class="textarea" maxlength="100" placeholder="写下对我们的祝福吧" placeholder-class="input-ph"
+          value="{{wishForm.text}}" bindinput="onWishTextInput" />
+        <button class="pill-btn primary" disabled="{{!wishValid || wishing}}" bindtap="submitWish">
+          {{ wishing ? '发送中…' : '送上祝福' }}
+        </button>
+        <text class="toast" wx:if="{{wishDone}}">祝福已上墙 ❤</text>
+      </view>
+
+      <scroll-view class="wall-scroll" scroll-y>
+        <view class="wall" wx:if="{{wishes.length}}">
+          <view class="wall-item" wx:for="{{ wishes }}" wx:key="createdAt">
+            <text class="wall-text">{{ item.text }}</text>
+            <text class="wall-from">—— {{ item.name }}</text>
+          </view>
+        </view>
+        <text class="hint" wx:else>还没有祝福，来做第一个吧</text>
+      </scroll-view>
+    </view>
+  </swiper-item>
+
+  <!-- ⑦ 尾幕 -->
+  <swiper-item>
+    <view class="screen screen-ending {{current === 6 ? 'in' : ''}}">
+      <view class="rise d1">
+        <text class="divider">❦</text>
+      </view>
+      <view class="rise d2">
+        <text class="thanks">{{ config.endingThanks }}</text>
+      </view>
+      <view class="rise d3">
+        <text class="ending-names">{{ config.groom }} &amp; {{ config.bride }} 敬邀</text>
+      </view>
+      <text class="scroll-hint" bindtap="backToTop">回到封面 ↓</text>
+    </view>
+  </swiper-item>
+
+</swiper>
+
+<!-- 悬浮音乐按钮：置于翻幕 swiper 之外，7 幕全程可见。
+     playing 时唱片旋转；配好 config.music（cloud:// fileID）后自动出现 -->
+<view wx:if="{{music}}" class="music-fab {{playing ? 'on' : ''}}" bindtap="toggleMusic">
+  <view class="music-disc">
+    <text class="music-note">♪</text>
+  </view>
+</view>
+
+</view>

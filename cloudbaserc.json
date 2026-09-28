@@ -1,0 +1,45 @@
+{
+  "version": "2.0",
+  "envId": "xiaofeiyang-d3gx5ou5k7fe078eb",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "submitRsvp",
+      "runtime": "Nodejs18.15",
+      "timeout": 10,
+      "installDependency": true,
+      "handler": "index.main"
+    },
+    {
+      "name": "submitGreeting",
+      "type": "Event",
+      "handler": "index.main",
+      "timeout": 10,
+      "runtime": "Nodejs18.15",
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "listGreetings",
+      "runtime": "Nodejs18.15",
+      "timeout": 10,
+      "installDependency": true,
+      "handler": "index.main"
+    },
+    {
+      "name": "getRsvpCount",
+      "runtime": "Nodejs18.15",
+      "timeout": 10,
+      "installDependency": true,
+      "handler": "index.main"
+    }
+  ],
+  "ai": {
+    "defaultAgent": "{{env.AI_DEFAULT_AGENT}}",
+    "agents": {
+      "codebuddy": {
+        "type": "none"
+      }
+    }
+  }
+}
