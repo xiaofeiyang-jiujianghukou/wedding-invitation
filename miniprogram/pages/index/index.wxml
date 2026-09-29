@@ -1,8 +1,10 @@
 <!-- 婚礼请柬 · 竖向整屏翻页（7 幕） -->
 <view class="page-root">
 
+<!-- current 必须双向绑定：没有它，所有 setData({current}) 都是空操作，
+     「回到封面」按钮和尾幕下滑跳转都不会动视图（踩过三轮的坑） -->
 <swiper class="stage" vertical circular="{{false}}" duration="420" easing-function="easeOutCubic"
-  bindchange="onStageChange">
+  current="{{current}}" bindchange="onStageChange">
 
   <!-- ① 封面 + 倒计时 -->
   <swiper-item>
@@ -13,7 +15,7 @@
       <view class="rise d2">
         <view class="cover-names">
           <text>{{ config.groom }}</text>
-          <text class="amp">&amp;</text>
+          <text class="amp">{{ '&' }}</text>
           <text>{{ config.bride }}</text>
         </view>
       </view>
@@ -54,7 +56,10 @@
         <text class="section-sub">OUR STORY</text>
       </view>
 
-      <scroll-view class="scroll-area" scroll-y>
+      <!-- scroll-view 会吞竖向手势：这里自判「顶部下滑」退回封面 -->
+      <scroll-view class="scroll-area" scroll-y
+        data-back="{{ 0 }}"
+        bindtouchstart="onBackTouchStart" bindtouchend="onBackTouchEnd" bindscroll="onBackScrolled">
         <view class="timeline">
           <view class="node rise d2" wx:for="{{ config.story }}" wx:key="title">
             <view class="dot"></view>
@@ -71,26 +76,31 @@
   <swiper-item>
     <view class="screen screen-gallery {{current === 2 ? 'in' : ''}}">
 
-      <!-- 叠层照片：只渲染当前张（入场）与上一张（退场），wx:if 重建节点保证动画必播。
-           旧图按 config.dir 飞出，新图从反方向飞入；横向滑动切图，竖向留给外层翻幕。 -->
+      <!-- 叠层照片：只渲染当前张（飞入）与上一张（静驻垫底），wx:if 重建节点保证动画必播。
+           旧图不再飞出——飞出与飞入同帧重叠会抖；新图从 config.dir 反方向飞入盖住旧图，
+           横向滑动切图，竖向留给外层翻幕。 -->
       <view class="gallery"
         bindtouchstart="galleryTouchStart"
         bindtouchend="galleryTouchEnd">
         <block wx:for="{{ config.gallery }}" wx:key="caption">
           <view wx:if="{{index === galleryIndex || index === galleryPrev}}" class="shot">
-            <!-- move 层：负责飞入(fly-in-*)与飞出(fly-out-*) -->
-            <view class="shot-move dir-{{item.dir}} {{index === galleryIndex ? 'live' : 'out'}}">
-              <!-- anim 层：驻留运镜 fx-*；万花筒图渲染四镜像 -->
-              <view class="shot-anim fx-{{item.fx}} {{index === galleryIndex ? 'live' : ''}}">
+            <!-- move 层：只播飞入(fly-in-*)。旧图不飞出，静驻原地(hold)被新图盖住——
+                 飞出与飞入两段大位移动画同帧重叠会抖，任意时刻只让一张图动 -->
+            <view class="shot-move dir-{{item.dir}} {{index === galleryIndex ? 'live' : 'hold'}}">
+              <!-- anim 层：驻留运镜 fx-*；旧图保持 live 继续运镜，避免动画移除导致回跳 -->
+              <view class="shot-anim fx-{{item.fx}} {{(index === galleryIndex || index === galleryPrev) ? 'live' : ''}}">
                 <block wx:if="{{item.kaleido}}">
-                  <image class="shot-main kp kp1" src="{{item.src}}" mode="aspectFill" />
-                  <image class="shot-main kp kp2" src="{{item.src}}" mode="aspectFill" />
-                  <image class="shot-main kp kp3" src="{{item.src}}" mode="aspectFill" />
-                  <image class="shot-main kp kp4" src="{{item.src}}" mode="aspectFill" />
+                  <!-- 垫一层同图模糊底：镜像 screen 混合与飞入渐入会让底下旧图透出，
+                       垫本图后透出的就是本图柔光版 -->
+                  <image class="shot-blur" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
+                  <image class="shot-main kp kp1" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
+                  <image class="shot-main kp kp2" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
+                  <image class="shot-main kp kp3" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
+                  <image class="shot-main kp kp4" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
                 </block>
                 <block wx:else>
-                  <image class="shot-blur" src="{{item.src}}" mode="aspectFill" />
-                  <image class="shot-main" src="{{item.src}}" mode="aspectFill" />
+                  <image class="shot-blur" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
+                  <image class="shot-main" src="{{item.src}}" mode="aspectFill" binderror="onPhotoError" data-gi="{{index}}" />
                 </block>
               </view>
             </view>
@@ -174,18 +184,21 @@
         <text class="section-sub">RSVP</text>
       </view>
 
-      <scroll-view class="scroll-area" scroll-y>
+      <!-- scroll-view 会吞竖向手势：这里自判「顶部下滑」退回婚礼信息幕 -->
+      <scroll-view class="scroll-area" scroll-y
+        data-back="{{ 3 }}"
+        bindtouchstart="onBackTouchStart" bindtouchend="onBackTouchEnd" bindscroll="onBackScrolled">
         <view class="form rise d2">
           <view class="field">
             <text class="field-label">姓名 *</text>
             <input class="input" maxlength="20" placeholder="怎么称呼你" placeholder-class="input-ph"
-              value="{{form.name}}" bindinput="onNameInput" />
+              value="{{form.name}}" bindinput="onNameInput" data-noswipe="{{true}}" />
           </view>
 
           <view class="field">
             <text class="field-label">手机</text>
             <input class="input" maxlength="20" type="number" placeholder="方便联系（选填）" placeholder-class="input-ph"
-              value="{{form.phone}}" bindinput="onPhoneInput" />
+              value="{{form.phone}}" bindinput="onPhoneInput" data-noswipe="{{true}}" />
           </view>
 
           <view class="radio-row">
@@ -211,7 +224,7 @@
           <view class="field">
             <text class="field-label">留言</text>
             <textarea class="textarea" maxlength="100" placeholder="饮食禁忌或其他想告诉我们的（选填）"
-              placeholder-class="input-ph" value="{{form.note}}" bindinput="onNoteInput" />
+              placeholder-class="input-ph" value="{{form.note}}" bindinput="onNoteInput" data-noswipe="{{true}}" />
           </view>
 
           <button class="pill-btn primary" disabled="{{!valid || submitting}}" bindtap="submitRsvp">
@@ -244,7 +257,10 @@
         <text class="toast" wx:if="{{wishDone}}">祝福已上墙 ❤</text>
       </view>
 
-      <scroll-view class="wall-scroll" scroll-y>
+      <!-- scroll-view 会吞竖向手势：这里自判「顶部下滑」退回回执幕 -->
+      <scroll-view class="wall-scroll" scroll-y
+        data-back="{{ 4 }}"
+        bindtouchstart="onBackTouchStart" bindtouchend="onBackTouchEnd" bindscroll="onBackScrolled">
         <view class="wall" wx:if="{{wishes.length}}">
           <view class="wall-item" wx:for="{{ wishes }}" wx:key="createdAt">
             <text class="wall-text">{{ item.text }}</text>
@@ -256,9 +272,12 @@
     </view>
   </swiper-item>
 
-  <!-- ⑦ 尾幕 -->
+  <!-- ⑦ 尾幕：下滑手势可直接回到封面 -->
   <swiper-item>
-    <view class="screen screen-ending {{current === 6 ? 'in' : ''}}">
+    <view class="screen screen-ending {{current === 6 ? 'in' : ''}}"
+          catchtouchmove="onEndingTouchMove"
+          bindtouchstart="onEndingTouchStart"
+          bindtouchend="onEndingTouchEnd">
       <view class="rise d1">
         <text class="divider">❦</text>
       </view>
@@ -266,7 +285,24 @@
         <text class="thanks">{{ config.endingThanks }}</text>
       </view>
       <view class="rise d3">
-        <text class="ending-names">{{ config.groom }} &amp; {{ config.bride }} 敬邀</text>
+        <text class="ending-names" bindlongpress="claimSite">{{ config.groom }} {{ '&' }} {{ config.bride }} 敬邀</text>
+      </view>
+      <view wx:if="{{ isOwner }}" class="rise d4">
+        <view class="owner-entry" bindtap="goAdmin">
+          <text class="owner-entry-text">✎ 编辑我的请柬</text>
+        </view>
+      </view>
+      <!-- 转发入口：open-type=share 触发 onShareAppMessage，卡片路径自带分享码 -->
+      <view class="rise d4 share-row">
+        <button class="share-entry" open-type="share">
+          <text class="share-entry-text">♡ 把这份喜悦分享给好友</text>
+        </button>
+      </view>
+      <!-- 云端拉取失败时的诊断条：只给制作人看，宾客看不到 -->
+      <view wx:if="{{ cloudError }}" class="cloud-diag">
+        <text class="cloud-diag-title">⚠ 云端内容没读到</text>
+        <text class="cloud-diag-msg">{{ cloudError }}</text>
+        <text class="cloud-diag-hint">当前显示的是本地兜底内容，后台入口暂时不可用</text>
       </view>
       <text class="scroll-hint" bindtap="backToTop">回到封面 ↓</text>
     </view>
@@ -279,6 +315,15 @@
 <view wx:if="{{music}}" class="music-fab {{playing ? 'on' : ''}}" bindtap="toggleMusic">
   <view class="music-disc">
     <text class="music-note">♪</text>
+  </view>
+</view>
+
+<!-- 首屏加载壳：云端内容就绪前盖住本地默认模板（不闪「默认新人名」）。
+     放开时先 fade（.hide），过渡结束由 JS 移除节点 -->
+<view wx:if="{{!bootVeilGone}}" class="boot-veil {{loading ? '' : 'hide'}}">
+  <view class="boot-inner">
+    <text class="boot-xi">囍</text>
+    <view class="boot-ring"></view>
   </view>
 </view>
 

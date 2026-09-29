@@ -1,0 +1,7 @@
+{
+  "name": "aiProcessPhotos",
+  "version": "1.0.0",
+  "description": "AI 统一处理照片：豆包视觉看图生成文案/分章/动效（零第三方依赖，fetch 直调）",
+  "main": "index.js",
+  "dependencies": {}
+}

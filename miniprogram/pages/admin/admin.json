@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "请柬后台",
+  "navigationBarBackgroundColor": "#fffdf8",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#faf6ef",
+  "enablePullDownRefresh": true,
+  "usingComponents": {}
+}

@@ -20,5 +20,7 @@ App({
   },
   globalData: {
     envId: ENV_ID,
+    /** 后台改完内容后置 true，首页 onShow 时据此重新拉云端 */
+    profileDirty: false,
   },
 })

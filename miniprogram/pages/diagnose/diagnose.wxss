@@ -1,0 +1,112 @@
+/* 环境自检页 */
+.dg-root {
+  min-height: 100vh;
+  padding: 40rpx 36rpx 60rpx;
+  background: var(--ivory);
+}
+
+.dg-head {
+  margin-bottom: 40rpx;
+}
+
+.dg-title {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 600;
+  letter-spacing: 6rpx;
+  color: var(--gold-deep);
+}
+
+.dg-sub {
+  display: block;
+  font-size: 24rpx;
+  color: var(--ink-soft);
+  margin-top: 8rpx;
+}
+
+.dg-list {
+  margin-bottom: 40rpx;
+}
+
+.dg-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 18rpx;
+  padding: 26rpx 24rpx;
+  margin-bottom: 18rpx;
+  background: var(--paper);
+  border-radius: 16rpx;
+  border-left: 6rpx solid rgba(111, 101, 87, 0.3);
+  box-shadow: 0 2rpx 12rpx rgba(184, 147, 94, 0.08);
+}
+
+.dg-item.ok {
+  border-left-color: #4a8f5c;
+}
+
+.dg-item.bad {
+  border-left-color: var(--rose);
+  background: rgba(201, 138, 125, 0.07);
+}
+
+.dg-icon {
+  font-size: 32rpx;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.dg-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dg-name {
+  display: block;
+  font-size: 28rpx;
+  color: var(--ink);
+}
+
+.dg-detail {
+  display: block;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-top: 8rpx;
+  word-break: break-all;
+}
+
+.dg-actions {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.dg-btn {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  padding: 24rpx 0;
+  border-radius: 14rpx;
+  color: #fff;
+  background: var(--gold);
+}
+
+.dg-btn-line {
+  color: var(--gold-deep);
+  background: transparent;
+  border: 1rpx solid var(--gold);
+}
+
+.dg-note {
+  padding: 24rpx 26rpx;
+  border: 1rpx dashed var(--gold);
+  border-radius: 14rpx;
+  background: var(--paper);
+}
+
+.dg-note-text {
+  font-size: 23rpx;
+  line-height: 1.9;
+  color: var(--ink-soft);
+  white-space: pre-line;
+}

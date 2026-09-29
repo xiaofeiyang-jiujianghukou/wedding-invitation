@@ -1,0 +1,7 @@
+{
+  "name": "siteManage",
+  "version": "1.0.0",
+  "description": "多租户请柬后台写入口（零第三方依赖，PG REST + openid）",
+  "main": "index.js",
+  "dependencies": {}
+}

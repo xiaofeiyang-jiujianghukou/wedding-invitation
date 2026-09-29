@@ -1,6 +1,6 @@
 {
-  "libVersion": "latest",
-  "projectname": "",
+  "libVersion": "3.17.3",
+  "projectname": "wedding-invitation",
   "condition": {},
   "setting": {
     "urlCheck": true,
@@ -15,7 +15,7 @@
     "useStaticServer": false,
     "useLanDebug": false,
     "showES6CompileOption": false,
-    "compileHotReLoad": false,
+    "compileHotReLoad": true,
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true,
     "bigPackageSizeSupport": false,

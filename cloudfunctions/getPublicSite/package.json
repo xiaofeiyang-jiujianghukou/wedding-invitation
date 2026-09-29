@@ -1,0 +1,7 @@
+{
+  "name": "getPublicSite",
+  "version": "1.0.0",
+  "description": "宾客端只读请柬接口（零第三方依赖，PG REST + share_code）",
+  "main": "index.js",
+  "dependencies": {}
+}

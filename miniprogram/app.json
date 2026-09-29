@@ -1,6 +1,8 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/index/index",
+    "pages/admin/admin",
+    "pages/diagnose/diagnose"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -10,5 +12,11 @@
     "backgroundColor": "#faf6ef"
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于在地图上选择婚礼场地位置"
+    }
+  }
 }
+

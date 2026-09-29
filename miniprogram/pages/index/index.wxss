@@ -287,7 +287,8 @@
   height: 100%;
 }
 
-/* move 层：飞入 / 飞出都打在这层。驻留时可见，其余隐藏 */
+/* move 层：飞入打在这层。live=当前张，hold=旧图静驻垫底（不播飞出），
+   其余隐藏。旧图飞出已移除：与飞入同帧重叠大位移会抖 */
 .shot-move {
   position: absolute;
   top: 0;
@@ -298,7 +299,7 @@
 }
 
 .shot-move.live,
-.shot-move.out { visibility: visible; }
+.shot-move.hold { visibility: visible; }
 
 /* anim 层：驻留运镜（zoom/pull/pan/tilt/rise/sink/bloom）打在这层，
    与 move 层的飞入飞出互不覆盖；delay 与飞入时长对齐，停稳后才开始 */
@@ -336,37 +337,20 @@
 
 /* ============================================================
    飞入：方向 = config.dir 的反方向（dir=left 的图，从右飞入）
-   飞出：按 config.dir。时长 1100ms，八方向 + 旋转 + 缩放
+   时长 1800ms，八方向 + 旋转 + 缩放。
+   飞出已移除：旧图静驻原地(hold)被新图盖住，避免飞出/飞入
+   同帧重叠两段大位移动画导致切换瞬间抖动。
    ============================================================ */
 
-/* —— 飞出（旧图退场）—— */
-.dir-left.out  { animation: flyOutLeft  1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-right.out { animation: flyOutRight 1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-up.out    { animation: flyOutUp    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-down.out  { animation: flyOutDown  1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-lu.out    { animation: flyOutLU    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-ru.out    { animation: flyOutRU    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-ld.out    { animation: flyOutLD    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-.dir-rd.out    { animation: flyOutRD    1100ms cubic-bezier(0.5, 0, 0.75, 0.4) both; }
-
-@keyframes flyOutLeft  { to { transform: translateX(-130%) rotate(-9deg)  scale(0.8);  opacity: 0; } }
-@keyframes flyOutRight { to { transform: translateX(130%)  rotate(9deg)   scale(0.8);  opacity: 0; } }
-@keyframes flyOutUp    { to { transform: translateY(-130%) rotate(-7deg)  scale(0.8);  opacity: 0; } }
-@keyframes flyOutDown  { to { transform: translateY(130%)  rotate(7deg)   scale(0.8);  opacity: 0; } }
-@keyframes flyOutLU    { to { transform: translate(-120%, -120%) rotate(-14deg) scale(0.72); opacity: 0; } }
-@keyframes flyOutRU    { to { transform: translate(120%, -120%)  rotate(14deg)  scale(0.72); opacity: 0; } }
-@keyframes flyOutLD    { to { transform: translate(-120%, 120%)  rotate(12deg)  scale(0.72); opacity: 0; } }
-@keyframes flyOutRD    { to { transform: translate(120%, 120%)   rotate(-12deg) scale(0.72); opacity: 0; } }
-
 /* —— 飞入（新图进场，反方向来）—— */
-.dir-left.live  { animation: flyInRight  1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-right.live { animation: flyInLeft   1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-up.live    { animation: flyInDown   1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-down.live  { animation: flyInUp     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-lu.live    { animation: flyInRD     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-ru.live    { animation: flyInLD     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-ld.live    { animation: flyInRU     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.dir-rd.live    { animation: flyInLU     1100ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-left.live  { animation: flyInRight  1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-right.live { animation: flyInLeft   1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-up.live    { animation: flyInDown   1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-down.live  { animation: flyInUp     1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-lu.live    { animation: flyInRD     1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-ru.live    { animation: flyInLD     1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-ld.live    { animation: flyInRU     1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.dir-rd.live    { animation: flyInLU     1800ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
 
 @keyframes flyInRight { from { transform: translateX(130%)  rotate(9deg)   scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes flyInLeft  { from { transform: translateX(-130%) rotate(-9deg)  scale(0.8);  opacity: 0; } to { transform: none; opacity: 1; } }
@@ -378,18 +362,18 @@
 @keyframes flyInLU    { from { transform: translate(-120%, -120%) rotate(-14deg) scale(0.72); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* ============================================================
-   驻留运镜：飞入停稳（delay 1100ms）后开始，呼吸到下一张
-   时长 5100ms，与轮播周期（6000ms）衔接
+   驻留运镜：飞入停稳（delay 1800ms）后开始，呼吸到下一张
+   时长 5100ms，未播完即被下一张盖住（both 状态，旧图运镜继续无跳变）
    ============================================================ */
 
-.fx-zoom.live  { animation: fxZoom  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-pull.live  { animation: fxPull  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-pan-l.live { animation: fxPanL  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-pan-r.live { animation: fxPanR  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-tilt.live  { animation: fxTilt  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-rise.live  { animation: fxRise  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-sink.live  { animation: fxSink  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1100ms both; }
-.fx-bloom.live { animation: fxBloom 5100ms cubic-bezier(0.3, 0.7, 0.4, 1)      1100ms both; }
+.fx-zoom.live  { animation: fxZoom  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-pull.live  { animation: fxPull  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-pan-l.live { animation: fxPanL  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-pan-r.live { animation: fxPanR  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-tilt.live  { animation: fxTilt  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-rise.live  { animation: fxRise  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-sink.live  { animation: fxSink  5100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 1800ms both; }
+.fx-bloom.live { animation: fxBloom 5100ms cubic-bezier(0.3, 0.7, 0.4, 1)      1800ms both; }
 
 @keyframes fxZoom {
   from { transform: scale(1.13); }
@@ -833,4 +817,114 @@
   font-size: 34rpx;
   letter-spacing: 8rpx;
   color: var(--gold-deep);
+}
+
+/* 制作人专用：进入后台（宾客看不到） */
+.owner-entry {
+  margin-top: 40rpx;
+  padding: 14rpx 40rpx;
+  border: 1rpx solid var(--gold);
+  border-radius: 999rpx;
+  background: rgba(184, 147, 94, 0.06);
+}
+
+.owner-entry-text {
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  color: var(--gold-deep);
+}
+
+/* 云端拉取失败的诊断条（仅制作人场景出现） */
+.cloud-diag {
+  margin-top: 44rpx;
+  padding: 22rpx 28rpx;
+  max-width: 560rpx;
+  border: 1rpx solid var(--rose);
+  border-radius: 14rpx;
+  background: rgba(201, 138, 125, 0.08);
+}
+
+.cloud-diag-title {
+  display: block;
+  font-size: 24rpx;
+  color: var(--rose);
+  margin-bottom: 8rpx;
+}
+
+.cloud-diag-msg {
+  display: block;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.cloud-diag-hint {
+  display: block;
+  font-size: 21rpx;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-top: 10rpx;
+}
+
+/* ---------- 首屏加载壳：云端内容就绪前盖住默认模板 ---------- */
+.boot-veil {
+  position: fixed;
+  left: 0; top: 0; right: 0; bottom: 0;
+  z-index: 999;
+  background: #faf6ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity .45s ease;
+}
+.boot-veil.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+.boot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.boot-xi {
+  font-size: 56rpx;
+  color: #b8935e;
+  letter-spacing: 0;
+  margin-bottom: 36rpx;
+  font-family: "Kaiti SC", "STKaiti", serif;
+}
+.boot-ring {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(184, 147, 94, 0.25);
+  border-top-color: #b8935e;
+  animation: boot-spin 1s linear infinite;
+}
+@keyframes boot-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- 尾幕分享按钮（open-type=share） ---------- */
+.share-row {
+  margin-top: 28rpx;
+}
+.share-entry {
+  background: transparent;
+  border: 1rpx solid rgba(184, 147, 94, 0.55);
+  border-radius: 999rpx;
+  padding: 16rpx 44rpx;
+  line-height: 1.4;
+  color: #9a7743;
+  font-size: 26rpx;
+}
+.share-entry::after {
+  border: none;
+}
+.share-entry-text {
+  color: #9a7743;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
 }

@@ -1,0 +1,223 @@
+<!-- 管理后台 · 制作人视角 -->
+<view class="ad-root">
+
+  <!-- ========== 顶部条：分享码 + 发布状态 ========== -->
+  <view class="ad-topbar">
+    <view class="ad-share" bindtap="copyShare">
+      <text class="ad-share-label">分享码</text>
+      <text class="ad-share-code">{{ shareCode || '——' }}</text>
+      <text class="ad-share-copy">复制</text>
+    </view>
+    <view class="ad-pub {{ published ? 'on' : '' }}" bindtap="togglePublish">
+      <text>{{ published ? '已发布' : '未发布' }}</text>
+    </view>
+  </view>
+
+  <!-- ========== Tab 切换 ========== -->
+  <view class="ad-tabs">
+    <view class="ad-tab {{ tab === 'profile' ? 'on' : '' }}" data-tab="profile" bindtap="switchTab">基本信息</view>
+    <view class="ad-tab {{ tab === 'photos' ? 'on' : '' }}" data-tab="photos" bindtap="switchTab">相册</view>
+    <view class="ad-tab {{ tab === 'ai' ? 'on' : '' }}" data-tab="ai" bindtap="switchTab">智能处理</view>
+  </view>
+
+  <!-- ========== 加载中 ========== -->
+  <view wx:if="{{ loading }}" class="ad-loading">
+    <text class="ad-loading-text">正在读取云端内容…</text>
+  </view>
+
+  <!-- ========== 出错 ========== -->
+  <view wx:elif="{{ error }}" class="ad-error">
+    <text class="ad-error-text">{{ error }}</text>
+    <view class="ad-btn ad-btn-line" bindtap="load">重试</view>
+  </view>
+
+  <block wx:else>
+
+    <!-- ================= Tab 1 · 基本信息 ================= -->
+    <scroll-view wx:if="{{ tab === 'profile' }}" class="ad-body" scroll-y>
+
+      <view class="ad-card">
+        <text class="ad-card-title">新人</text>
+        <view class="ad-field">
+          <text class="ad-label">新郎</text>
+          <input class="ad-input" value="{{ form.groom }}" data-key="groom" bindinput="onField" placeholder="新郎姓名" />
+        </view>
+        <view class="ad-field">
+          <text class="ad-label">新娘</text>
+          <input class="ad-input" value="{{ form.bride }}" data-key="bride" bindinput="onField" placeholder="新娘姓名" />
+        </view>
+        <view class="ad-field">
+          <text class="ad-label">封面副题</text>
+          <input class="ad-input" value="{{ form.coverLine }}" data-key="coverLine" bindinput="onField" placeholder="如：从心动，到古稀" />
+        </view>
+      </view>
+
+      <view class="ad-card">
+        <text class="ad-card-title">婚礼信息</text>
+        <view class="ad-field-inline">
+          <view class="ad-field ad-input-grow">
+            <text class="ad-label">婚期</text>
+            <picker mode="date" value="{{ datePart }}" bindchange="onDatePart">
+              <view class="ad-picker">{{ datePart || '选择日期' }}</view>
+            </picker>
+          </view>
+          <view class="ad-field ad-input-grow">
+            <text class="ad-label">时间</text>
+            <picker mode="time" value="{{ timePart }}" bindchange="onTimePart">
+              <view class="ad-picker">{{ timePart || '选择时间' }}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="ad-field">
+          <text class="ad-label">场地名称</text>
+          <input class="ad-input" value="{{ form.venueName }}" data-key="venueName" bindinput="onField" placeholder="如：示例酒店·宴会厅" />
+        </view>
+        <view class="ad-field">
+          <view class="ad-map-btn" bindtap="chooseOnMap">📍 从地图选择场地</view>
+          <text class="ad-label">详细地址</text>
+          <input class="ad-input" value="{{ form.venueAddress }}" data-key="venueAddress" bindinput="onField" placeholder="点上方按钮在地图上选，或手动输入" />
+        </view>
+      </view>
+
+      <view class="ad-card">
+        <text class="ad-card-title">我们的故事</text>
+        <view class="ad-row" wx:for="{{ story }}" wx:key="index">
+          <view class="ad-row-head">
+            <text class="ad-row-index">第 {{ index + 1 }} 段</text>
+            <text class="ad-row-del" data-index="{{ index }}" bindtap="removeStory">删除</text>
+          </view>
+          <view class="ad-field">
+            <text class="ad-label">时间</text>
+            <input class="ad-input" value="{{ item.date }}" data-index="{{ index }}" data-key="date" bindinput="onStoryField" placeholder="如：2021 年春" />
+          </view>
+          <view class="ad-field">
+            <text class="ad-label">标题</text>
+            <input class="ad-input" value="{{ item.title }}" data-index="{{ index }}" data-key="title" bindinput="onStoryField" placeholder="如：初见" />
+          </view>
+          <view class="ad-field">
+            <text class="ad-label">正文</text>
+            <textarea class="ad-textarea" value="{{ item.text }}" data-index="{{ index }}" data-key="text" bindinput="onStoryField" placeholder="写下那天的细节…" auto-height maxlength="200" />
+          </view>
+        </view>
+        <view wx:if="{{ story.length < 6 }}" class="ad-add" bindtap="addStory">＋ 加一段故事</view>
+      </view>
+
+      <view class="ad-card">
+        <text class="ad-card-title">婚礼日程</text>
+        <view class="ad-row" wx:for="{{ schedule }}" wx:key="index">
+          <view class="ad-row-head">
+            <text class="ad-row-index">第 {{ index + 1 }} 项</text>
+            <text class="ad-row-del" data-index="{{ index }}" bindtap="removeSchedule">删除</text>
+          </view>
+          <view class="ad-field-inline">
+            <input class="ad-input ad-input-time" value="{{ item.time }}" data-index="{{ index }}" data-key="time" bindinput="onScheduleField" placeholder="11:00" />
+            <input class="ad-input ad-input-grow" value="{{ item.event }}" data-index="{{ index }}" data-key="event" bindinput="onScheduleField" placeholder="如：宾客签到" />
+          </view>
+        </view>
+        <view wx:if="{{ schedule.length < 10 }}" class="ad-add" bindtap="addSchedule">＋ 加一项日程</view>
+      </view>
+
+      <view class="ad-card">
+        <text class="ad-card-title">致谢语</text>
+        <view class="ad-field">
+          <textarea class="ad-textarea" value="{{ form.endingThanks }}" data-key="endingThanks" bindinput="onField" placeholder="尾幕那句话…" auto-height maxlength="120" />
+        </view>
+      </view>
+
+      <view class="ad-actions">
+        <view class="ad-btn ad-btn-main {{ saving ? 'disabled' : '' }}" bindtap="save">
+          {{ saving ? '保存中…' : '保存修改' }}
+        </view>
+      </view>
+      <text class="ad-foot-tip">未改动的内容会自动跳过，不会重复写库。</text>
+
+    </scroll-view>
+
+    <!-- ================= Tab 2 · 相册 ================= -->
+    <scroll-view wx:elif="{{ tab === 'photos' }}" class="ad-body" scroll-y>
+
+      <view class="ad-stat">
+        <text class="ad-stat-num">{{ photoCount }}</text>
+        <text class="ad-stat-label">张照片</text>
+        <text wx:if="{{ pendingCount }}" class="ad-stat-badge">待审阅 {{ pendingCount }}</text>
+      </view>
+
+      <view class="ad-grid">
+        <view class="ad-cell" wx:for="{{ photos }}" wx:key="id">
+          <image class="ad-cell-img" src="{{ item.url }}" mode="aspectFill" data-index="{{ index }}" bindtap="previewPhoto" lazy-load />
+          <view class="ad-cell-mask">
+            <text class="ad-cell-chapter">{{ item.chapter || '未分章' }}</text>
+          </view>
+          <view class="ad-cell-bar">
+            <text class="ad-cell-move" data-id="{{ item.id }}" data-dir="-1" catchtap="movePhoto">←</text>
+            <text class="ad-cell-del" data-id="{{ item.id }}" catchtap="deletePhoto">删</text>
+            <text class="ad-cell-move" data-id="{{ item.id }}" data-dir="1" catchtap="movePhoto">→</text>
+          </view>
+          <view class="ad-cell-cap">
+            <text class="ad-cell-cap-text">{{ item.caption || '（暂无文案）' }}</text>
+          </view>
+          <text wx:if="{{ item.hasAi }}" class="ad-cell-tag">AI</text>
+        </view>
+
+        <view class="ad-cell ad-cell-add" bindtap="addPhotos">
+          <text class="ad-add-plus">＋</text>
+          <text class="ad-add-text">添加照片</text>
+        </view>
+      </view>
+
+      <text class="ad-foot-tip">长按图片可预览大图；← → 调整顺序。换图后记得去「智能处理」重跑一次。</text>
+
+    </scroll-view>
+
+    <!-- ================= Tab 3 · 智能处理 ================= -->
+    <scroll-view wx:else class="ad-body" scroll-y>
+
+      <view class="ad-card">
+        <text class="ad-card-title">AI 智能处理</text>
+        <text class="ad-para">
+          让 AI 逐张看照片，自动写出配图文案、归入章节、挑选运镜动效。
+          处理结果会同步到你的请柬上。
+        </text>
+        <text class="ad-para ad-para-dim">
+          已经处理过、且没有换过的照片会自动跳过，不重复消耗额度。
+        </text>
+
+        <view class="ad-actions">
+          <view class="ad-btn ad-btn-main {{ aiRunning ? 'disabled' : '' }}" bindtap="runAi">
+            {{ aiRunning ? 'AI 正在看图…' : '开始智能处理' }}
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{ aiResult }}" class="ad-card">
+        <text class="ad-card-title">本次结果</text>
+        <view class="ad-result-row">
+          <text class="ad-result-label">新处理</text>
+          <text class="ad-result-val">{{ aiResult.processed }} 张</text>
+        </view>
+        <view class="ad-result-row">
+          <text class="ad-result-label">已跳过</text>
+          <text class="ad-result-val">{{ aiResult.skipped }} 张</text>
+        </view>
+        <view class="ad-result-row">
+          <text class="ad-result-label">总计</text>
+          <text class="ad-result-val">{{ aiResult.total }} 张</text>
+        </view>
+      </view>
+
+      <view class="ad-card">
+        <text class="ad-card-title">提示</text>
+        <text class="ad-para">首次处理 20 张大约需要一两分钟，请保持页面打开。</text>
+        <text class="ad-para">若中途退出，下次进来会从没处理的那张继续，不会白跑。</text>
+      </view>
+
+    </scroll-view>
+
+  </block>
+
+  <!-- ========== 底部：回请柬 ========== -->
+  <view class="ad-backbar" bindtap="backToInvitation">
+    <text>← 回到请柬</text>
+  </view>
+
+</view>

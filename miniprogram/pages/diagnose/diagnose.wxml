@@ -1,0 +1,34 @@
+<!-- 环境自检页 -->
+<view class="dg-root">
+  <view class="dg-head">
+    <text class="dg-title">环境自检</text>
+    <text class="dg-sub">逐项检查云端链路，看是哪一环断了</text>
+  </view>
+
+  <view class="dg-list">
+    <view class="dg-item {{item.ok ? 'ok' : 'bad'}}" wx:for="{{ steps }}" wx:key="name">
+      <text class="dg-icon">{{ item.ok ? '✅' : '❌' }}</text>
+      <view class="dg-body">
+        <text class="dg-name">{{ item.name }}</text>
+        <text class="dg-detail">{{ item.detail }}</text>
+      </view>
+    </view>
+    <view wx:if="{{ !done }}" class="dg-item">
+      <text class="dg-icon">⏳</text>
+      <view class="dg-body"><text class="dg-name">检查中…</text></view>
+    </view>
+  </view>
+
+  <view class="dg-actions">
+    <view class="dg-btn" bindtap="run">重新检查</view>
+    <view class="dg-btn dg-btn-line" bindtap="back">返回请柬</view>
+  </view>
+
+  <view class="dg-note">
+    <text class="dg-note-text">
+      若「siteManage 调用失败」，最常见原因是：
+      {{ '\n' }}1. 开发者工具 → 云开发，未选中环境 {{ 'xiaofeiyang-d3gx5ou5k7fe078eb' }}
+      {{ '\n' }}2. 该环境不是从本小程序创建/关联的
+    </text>
+  </view>
+</view>

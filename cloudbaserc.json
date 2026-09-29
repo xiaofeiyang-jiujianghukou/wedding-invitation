@@ -32,6 +32,64 @@
       "timeout": 10,
       "installDependency": true,
       "handler": "index.main"
+    },
+    {
+      "name": "siteManage",
+      "runtime": "Nodejs18.15",
+      "timeout": 20,
+      "memorySize": 256,
+      "installDependency": true,
+      "handler": "index.main",
+      "description": "多租户后台管理（写入口；API Key 经环境变量注入，见 .st-admin/deploy.py）"
+    },
+    {
+      "name": "getPublicSite",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "memorySize": 256,
+      "installDependency": true,
+      "handler": "index.main",
+      "description": "宾客端只读接口（按 share_code 取已发布请柬）"
+    },
+    {
+      "name": "getWeddingConfig",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "memorySize": 256,
+      "installDependency": true,
+      "handler": "index.main"
+    },
+    {
+      "name": "aiProcessPhotos",
+      "runtime": "Nodejs18.15",
+      "timeout": 60,
+      "memorySize": 512,
+      "installDependency": true,
+      "handler": "index.main",
+      "description": "AI 逐张看图写文案配动效（混元 vision）"
+    },
+    {
+      "name": "adminManage",
+      "runtime": "Nodejs18.15",
+      "timeout": 20,
+      "memorySize": 256,
+      "installDependency": true,
+      "handler": "index.main"
+    },
+    {
+      "name": "adminAuth",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "memorySize": 256,
+      "installDependency": true,
+      "handler": "index.main"
+    },
+    {
+      "name": "claimSite",
+      "timeout": 30,
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "installDependency": false
     }
   ],
   "ai": {

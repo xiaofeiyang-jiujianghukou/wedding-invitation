@@ -1,0 +1,215 @@
+{
+  "profile": {
+    "groom": "阿哲",
+    "bride": "小满",
+    "coverLine": "从心动，到古稀",
+    "weddingDate": "2027-05-01T11:00:00+08:00",
+    "venue": {
+      "name": "示例酒店·宴会厅",
+      "address": "北京市朝阳区示例路 1 号",
+      "longitude": 116.4074,
+      "latitude": 39.9042
+    },
+    "story": [
+      {
+        "date": "2021 年春",
+        "title": "初见",
+        "text": "placeholder——在这里写下你们第一次见面的故事。"
+      },
+      {
+        "date": "2022 年夏",
+        "title": "在一起",
+        "text": "placeholder——告白那天的细节，当时的心情。"
+      },
+      {
+        "date": "2026 年秋",
+        "title": "求婚",
+        "text": "placeholder——单膝跪地的那一刻。"
+      }
+    ],
+    "schedule": [
+      {
+        "time": "10:30",
+        "event": "宾客签到"
+      },
+      {
+        "time": "11:00",
+        "event": "婚礼仪式"
+      },
+      {
+        "time": "12:00",
+        "event": "婚宴开始"
+      },
+      {
+        "time": "14:00",
+        "event": "送宾"
+      }
+    ],
+    "endingThanks": "感谢每一位远道而来的你，\n见证我们人生最重要的这一天。"
+  },
+  "music": {
+    "public_url": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/audio/bgm_loop.mp3"
+  },
+  "gallery": [
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p01.jpg",
+      "caption": "街角的第一眼",
+      "chapter": "初见",
+      "dir": "left",
+      "fx": "zoom",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p02.jpg",
+      "caption": "咖啡凉了也没发觉",
+      "chapter": "初见",
+      "dir": "down",
+      "fx": "pull",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p03.jpg",
+      "caption": "你笑起来的样子",
+      "chapter": "初见",
+      "dir": "lu",
+      "fx": "bloom",
+      "kaleido": true
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p06.jpg",
+      "caption": "话没说完，手先牵上了",
+      "chapter": "初见",
+      "dir": "right",
+      "fx": "tilt",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p05.jpg",
+      "caption": "海边的黄昏",
+      "chapter": "相恋",
+      "dir": "right",
+      "fx": "pan-l",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p07.jpg",
+      "caption": "靠在你肩上睡着了",
+      "chapter": "相恋",
+      "dir": "left",
+      "fx": "sink",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p08.jpg",
+      "caption": "落叶下的野餐",
+      "chapter": "相恋",
+      "dir": "up",
+      "fx": "rise",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p18.jpg",
+      "caption": "那晚雨很大，伞很小",
+      "chapter": "相恋",
+      "dir": "down",
+      "fx": "bloom",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p09.jpg",
+      "caption": "天台的晚风",
+      "chapter": "同行",
+      "dir": "ru",
+      "fx": "pan-r",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p19.jpg",
+      "caption": "一起做的第一顿饭",
+      "chapter": "同行",
+      "dir": "left",
+      "fx": "zoom",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p10.jpg",
+      "caption": "初雪的那条小路",
+      "chapter": "同行",
+      "dir": "ld",
+      "fx": "pan-l",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p12.jpg",
+      "caption": "落雪那天，靠得很近",
+      "chapter": "同行",
+      "dir": "down",
+      "fx": "pull",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p11.jpg",
+      "caption": "单膝落地的那一秒",
+      "chapter": "约定",
+      "dir": "up",
+      "fx": "rise",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p13.jpg",
+      "caption": "这枚戒指等了很久",
+      "chapter": "约定",
+      "dir": "rd",
+      "fx": "pull",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p20.jpg",
+      "caption": "星空下的约定",
+      "chapter": "约定",
+      "dir": "up",
+      "fx": "bloom",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p14.jpg",
+      "caption": "答案是，我愿意",
+      "chapter": "约定",
+      "dir": "right",
+      "fx": "tilt",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p15.jpg",
+      "caption": "成为你的新娘",
+      "chapter": "此刻",
+      "dir": "left",
+      "fx": "zoom",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p16.jpg",
+      "caption": "第一支舞",
+      "chapter": "此刻",
+      "dir": "ru",
+      "fx": "bloom",
+      "kaleido": true
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p04.jpg",
+      "caption": "走向礼堂的那条路",
+      "chapter": "此刻",
+      "dir": "right",
+      "fx": "sink",
+      "kaleido": false
+    },
+    {
+      "src": "https://xiaofeiyang-d3gx5ou5k7fe078eb.api.tcloudbasegateway.com/v1/storages/object/public/wedding/photos/p17.jpg",
+      "caption": "走向很远的以后",
+      "chapter": "此刻",
+      "dir": "lu",
+      "fx": "pan-r",
+      "kaleido": false
+    }
+  ]
+}

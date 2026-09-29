@@ -1,7 +1,17 @@
 {
-  "desc": "小程序的 sitemap 配置",
-  "rules": [{
-    "action": "allow",
-    "page": "*"
-  }]
-} 
+  "desc": "小程序的 sitemap 配置：诊断页与后台页不对微信搜索开放",
+  "rules": [
+    {
+      "action": "disallow",
+      "page": "pages/diagnose/diagnose"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/admin/admin"
+    },
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

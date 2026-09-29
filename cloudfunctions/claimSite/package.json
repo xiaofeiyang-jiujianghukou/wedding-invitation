@@ -1,0 +1,7 @@
+{
+  "name": "claimSite",
+  "version": "1.0.0",
+  "description": "把现有请柬内容归位到当前微信用户 openid 名下（一次性迁移，幂等）",
+  "main": "index.js",
+  "dependencies": {}
+}
