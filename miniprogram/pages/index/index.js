@@ -272,6 +272,8 @@ Page({
     this.setData({ playing: false })
     this.initMusic()
     this.tick()
+    // 内容就位 → 记一次访问（此刻才拿得到分享码；服务端 5 分钟内合并重复进站）
+    this.reportVisit(this.data.current)
   },
 
   /**
@@ -346,6 +348,8 @@ Page({
       getApp().globalData.profileDirty = false
       this.applyCloudContent()
     }
+    // 回到前台补报一次（分享出去又被打开的场景；5 分钟内由服务端自动合并）
+    this.reportVisit(this.data.current)
   },
 
   /** 尾幕的「编辑我的请柬」→ 后台（仅制作人可见） */
@@ -377,6 +381,8 @@ Page({
     } else {
       this.stopGalleryTimer()
     }
+    // 浏览深度：看到第几幕（服务端只记最大值，不会因来回滑动后退）
+    this.reportVisit(current)
   },
 
   /**
@@ -564,26 +570,60 @@ Page({
     return this._shareCode || (this.options && this.options.code) || ''
   },
 
-  /** 转发给好友：卡片路径带分享码，好友打开即是这份请柬（宾客可再转发） */
+  /* ---------- 访客上报（后台数据看板的数据源） ---------- */
+
+  /** 访客稳定标识：首次由服务端生成后本地留存，分享来源与去重都靠它 */
+  _vid() {
+    if (this._vidCache !== undefined) return this._vidCache
+    try { this._vidCache = wx.getStorageSync('visit_vid') || '' } catch (e) { this._vidCache = '' }
+    return this._vidCache
+  },
+
+  _saveVid(v) {
+    if (!v || v === this._vidCache) return
+    this._vidCache = v
+    try { wx.setStorageSync('visit_vid', v) } catch (e) { /* 存不下不影响浏览 */ }
+  },
+
+  /**
+   * 访客上报（静默）：PV / UV、浏览深度、裂变来源。
+   *
+   * 只在宾客视角（带分享码）上报——制作人本地预览不污染自己的数据。
+   * 失败一律吞掉：数据统计是加分项，请柬能打开才是第一位。
+   */
+  reportVisit(stage) {
+    const shareCode = this._currentShareCode()
+    if (!shareCode) return
+    const from = (this.options && this.options.from) || ''
+    api.reportVisit({ shareCode, from, stage: stage || 0, vid: this._vid() })
+      .then((res) => { if (res && res.ok && res.vid) this._saveVid(res.vid) })
+      .catch(() => { /* 静默：不影响宾客浏览 */ })
+  },
+
+  /** 转发给好友：路径带分享码 + 来源 vid（好友打开即归到「谁转发带来的」） */
   onShareAppMessage() {
     const code = this._currentShareCode()
+    const from = this._vid()
     const c = this.data.config || {}
     const img = (c.gallery && c.gallery[0] && c.gallery[0].src) || ''
+    const qs = [code ? `code=${code}` : '', from ? `from=${from}` : ''].filter(Boolean).join('&')
     return {
       title: `${c.groom || ''} & ${c.bride || ''} · 邀你见证我们的婚礼`,
-      path: `/pages/index/index${code ? `?code=${code}` : ''}`,
+      path: `/pages/index/index${qs ? `?${qs}` : ''}`,
       imageUrl: /^https:/.test(img) ? img : '',
     }
   },
 
-  /** 分享到朋友圈：单页模式打开，query 带分享码 */
+  /** 分享到朋友圈：单页模式打开，query 带分享码 + 来源 */
   onShareTimeline() {
     const code = this._currentShareCode()
+    const from = this._vid()
     const c = this.data.config || {}
     const img = (c.gallery && c.gallery[0] && c.gallery[0].src) || ''
+    const qs = [code ? `code=${code}` : '', from ? `from=${from}` : ''].filter(Boolean).join('&')
     return {
       title: `${c.groom || ''} & ${c.bride || ''} · 邀你见证我们的婚礼`,
-      query: code ? `code=${code}` : '',
+      query: qs,
       imageUrl: /^https:/.test(img) ? img : '',
     }
   },
@@ -692,7 +732,7 @@ Page({
 
   async loadRsvpCount() {
     try {
-      const total = await api.rsvpCount()
+      const total = await api.rsvpCount(this._currentShareCode())
       console.log('[page] 云端回执总数 =', total)
       this.setData({ rsvpTotal: total })
     } catch (err) {
@@ -712,7 +752,7 @@ Page({
         attending: form.attending,
         count: Math.min(10, Math.max(1, form.count)),
         note: form.note.trim().slice(0, 100),
-      })
+      }, this._currentShareCode(), this._vid())
 
       if (res && res.ok === false) {
         wx.showToast({ title: res.msg || '提交失败', icon: 'none' })
@@ -755,7 +795,7 @@ Page({
 
   async loadWishes() {
     try {
-      const wishes = await api.listWishes()
+      const wishes = await api.listWishes(this._currentShareCode())
       this.setData({ wishes })
     } catch (err) {
       console.error('读取祝福失败', err)
@@ -771,7 +811,7 @@ Page({
       const res = await api.submitWish({
         name: wishForm.name.trim().slice(0, 20),
         text: wishForm.text.trim().slice(0, 100),
-      })
+      }, this._currentShareCode(), this._vid())
 
       if (res && res.ok === false) {
         wx.showToast({ title: res.msg || '发送失败', icon: 'none' })

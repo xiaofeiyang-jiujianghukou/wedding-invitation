@@ -1,0 +1,6 @@
+{
+  "name": "webLogin",
+  "version": "1.0.0",
+  "description": "PC 端扫码登录：生成小程序码会话 / 轮询 / 小程序内确认",
+  "dependencies": {}
+}

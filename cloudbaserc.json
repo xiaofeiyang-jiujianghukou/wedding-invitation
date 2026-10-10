@@ -90,6 +90,23 @@
       "runtime": "Nodejs18.15",
       "handler": "index.main",
       "installDependency": false
+    },
+    {
+      "name": "reportVisit",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "memorySize": 256,
+      "installDependency": false,
+      "handler": "index.main"
+    },
+    {
+      "name": "webLogin",
+      "runtime": "Nodejs18.15",
+      "timeout": 15,
+      "memorySize": 256,
+      "installDependency": false,
+      "handler": "index.main",
+      "description": "PC 端扫码登录（生成小程序码会话 / 轮询 / 小程序内确认）"
     }
   ],
   "ai": {

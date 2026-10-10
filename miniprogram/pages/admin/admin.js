@@ -4,7 +4,8 @@
  * 进入方式：长按主页面尾幕的「敬邀」那行 → 跳到这里。
  * 权限：靠 openid 判定 —— 只有你自己的微信能进，宾客打不开（云函数会拒绝）。
  *
- * 三个 Tab：
+ * 四个 Tab：
+ *   数据      访客/浏览深度/传播链 + 留言管理 + 回执名单与导出
  *   基本信息  改新人/日期/地点/故事/日程/致谢 —— 差量保存，没改的不动
  *   相册      看照片、换图、看 AI 文案
  *   智能处理  一键 AI 看图生成文案/分章/动效（已处理的图会自动跳过，省钱）
@@ -16,15 +17,29 @@ const MAX_EDGE = 720
 /** 单张体积上限（字节）。超了继续降质量 */
 const MAX_BYTES = 300 * 1024
 
+/** 幕名（浏览深度分布用，顺序与请柬七幕一致） */
+const STAGE_NAMES = ['封面', '故事', '相册', '信息', '回执', '祝福', '尾幕']
+
 Page({
   data: {
-    tab: 'profile',          // profile | photos | ai
+    tab: 'data',             // data | profile | photos | ai
     loading: true,
     saving: false,
     error: '',
 
     site: null,
     shareCode: '',
+
+    /* ---------- 数据页 ---------- */
+    stats: null,             // { overview, today, trend[], spread[], depth[] }
+    sub: 'wish',             // wish | rsvp
+    greetings: [],
+    greetingsMore: false,
+    greetingsOffset: 0,
+    rsvps: [],
+    rsvpSummary: { total: 0, attending: 0, absent: 0, guests: 0 },
+    dataLoading: false,
+    dataError: '',
 
     /** 婚期拆分（picker 用）：datePart 'YYYY-MM-DD'，timePart 'HH:mm' */
     datePart: '',
@@ -53,10 +68,14 @@ Page({
     // 支持从分享链接带码进来（方便以后做"预览他人请柬"）
     this._shareCode = (options && options.code) || ''
     this.load()
+    // 首屏即数据页：内容与统计并行拉，谁先到先显示
+    this.loadData()
   },
 
   onPullDownRefresh() {
-    this.load().then(() => wx.stopPullDownRefresh())
+    const jobs = [this.load()]
+    if (this.data.tab === 'data') jobs.push(this.loadData())
+    Promise.all(jobs).then(() => wx.stopPullDownRefresh())
   },
 
   /* ---------- 加载 ---------- */
@@ -101,7 +120,159 @@ Page({
   /* ---------- Tab ---------- */
 
   switchTab(e) {
-    this.setData({ tab: e.currentTarget.dataset.tab })
+    const tab = e.currentTarget.dataset.tab
+    this.setData({ tab })
+    if (tab === 'data') this.loadData()
+  },
+
+  /* ================= 数据页：概览 / 留言 / 回执 ================= */
+
+  switchSub(e) {
+    this.setData({ sub: e.currentTarget.dataset.sub })
+  },
+
+  /**
+   * 拉取数据看板。失败不阻塞页面（数据是加分项，内容编辑才是主功能）。
+   */
+  async loadData() {
+    if (this.data.dataLoading) return
+    this.setData({ dataLoading: true, dataError: '' })
+    try {
+      const res = await api.adminStats()
+      if (!res || !res.ok) throw new Error((res && res.msg) || '读取失败')
+
+      // 柱高归一化：最高的柱子占满；0 也留一丝以示意「这天没有」
+      const maxPv = Math.max(1, ...res.trend.map((t) => t.pv))
+      const trend = res.trend.map((t) => ({
+        day: t.day,
+        pv: t.pv,
+        uv: t.uv,
+        label: t.day.slice(5),
+        h: t.pv === 0 ? 4 : Math.max(8, Math.round((t.pv / maxPv) * 100)),
+      }))
+
+      // 浏览深度：以「到过封面的访客数」为分母算占比
+      const base = Math.max(1, (res.depth[0] && res.depth[0].visitors) || 1)
+      const depth = res.depth.map((d) => ({
+        stage: d.stage,
+        name: STAGE_NAMES[d.stage] || `第 ${d.stage} 幕`,
+        visitors: d.visitors,
+        pct: Math.round((d.visitors / base) * 100),
+      }))
+
+      this.setData({ stats: Object.assign({}, res, { trend, depth }) })
+      await Promise.all([this.loadGreetings(true), this.loadRsvps()])
+    } catch (err) {
+      this.setData({ dataError: (err && err.message) || '读取失败' })
+    } finally {
+      this.setData({ dataLoading: false })
+    }
+  },
+
+  /** 留言列表（reset=true 从头拉，否则续拉下一页） */
+  async loadGreetings(reset) {
+    const offset = reset ? 0 : this.data.greetingsOffset
+    try {
+      const res = await api.adminGreetings(offset)
+      if (!res || !res.ok) return
+      const list = reset ? res.items : this.data.greetings.concat(res.items)
+      this.setData({
+        greetings: list,
+        greetingsMore: Boolean(res.hasMore),
+        greetingsOffset: offset + (res.items || []).length,
+      })
+      if (this.data.stats) this.setData({ 'stats.overview.greetings': res.total })
+    } catch (err) {
+      console.error('[admin] 读取留言失败', err)
+    }
+  },
+
+  loadMoreGreetings() {
+    this.loadGreetings(false)
+  },
+
+  /** 删除一条留言（二次确认，避免误删） */
+  deleteGreeting(e) {
+    const id = e.currentTarget.dataset.id
+    wx.showModal({
+      title: '删除这条留言？',
+      content: '删除后宾客那边也会消失，无法恢复。',
+      confirmText: '删除',
+      confirmColor: '#c94f4f',
+      success: async (r) => {
+        if (!r.confirm) return
+        try {
+          const res = await api.adminDeleteGreeting(id)
+          if (!res || !res.ok) throw new Error((res && res.msg) || '删除失败')
+          wx.showToast({ title: '已删除', icon: 'success' })
+          this.loadGreetings(true)
+        } catch (err) {
+          wx.showToast({ title: (err && err.message) || '删除失败', icon: 'none' })
+        }
+      },
+    })
+  },
+
+  async loadRsvps() {
+    try {
+      const res = await api.adminRsvps()
+      if (!res || !res.ok) return
+      this.setData({ rsvps: res.items || [], rsvpSummary: res.summary || this.data.rsvpSummary })
+    } catch (err) {
+      console.error('[admin] 读取回执失败', err)
+    }
+  },
+
+  /* ---------- 导出（CSV：发到微信聊天 or 复制表格文本） ---------- */
+
+  exportRsvps() { this.exportCsv('rsvp') },
+
+  exportGreetings() { this.exportCsv('greeting') },
+
+  async exportCsv(kind) {
+    wx.showLoading({ title: '生成中…', mask: true })
+    try {
+      const res = await api.adminExport(kind)
+      if (!res || !res.ok) throw new Error((res && res.msg) || '导出失败')
+      wx.hideLoading()
+
+      // 落地成文件才能发给聊天；拿不到文件系统时退化为纯复制
+      let filePath = ''
+      try {
+        filePath = `${wx.env.USER_DATA_PATH}/${res.filename}`
+        wx.getFileSystemManager().writeFileSync(filePath, res.csv, 'utf8')
+      } catch (e) { filePath = '' }
+
+      wx.showModal({
+        title: '导出完成',
+        content: filePath
+          ? '可发送到微信聊天（选「文件传输助手」），在电脑上用 Excel 打开；也可复制表格文本。'
+          : '复制表格文本后粘贴到 Excel / 微信。',
+        confirmText: filePath ? '发送文件' : '复制',
+        cancelText: '复制文本',
+        success: (r) => {
+          if (r.confirm && filePath) {
+            wx.shareFileMessage({
+              filePath,
+              fileName: res.filename,
+              fail: () => this.copyCsv(res.csv),
+            })
+          } else {
+            this.copyCsv(res.csv)
+          }
+        },
+      })
+    } catch (err) {
+      wx.hideLoading()
+      wx.showToast({ title: (err && err.message) || '导出失败', icon: 'none' })
+    }
+  },
+
+  copyCsv(csv) {
+    wx.setClipboardData({
+      data: csv,
+      success: () => wx.showToast({ title: '已复制，可粘贴到表格', icon: 'none' }),
+    })
   },
 
   /* ---------- 表单编辑 ---------- */

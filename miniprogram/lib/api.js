@@ -12,7 +12,7 @@
  * 能调通，但云函数拿不到原生注入的 context.OPENID（那是微信侧环境的
  * 专属能力）。标准解法就是 code2Session —— code 一次性、5 分钟有效、防重放。
  */
-const AUTHED_FNS = ['siteManage', 'aiProcessPhotos', 'claimSite']
+const AUTHED_FNS = ['siteManage', 'aiProcessPhotos', 'claimSite', 'reportVisit', 'adminManage', 'webLogin']
 
 /** wx.login 的 Promise 化（code 是一次性临时凭证，本地生成，很快） */
 function getLoginCode() {
@@ -50,32 +50,83 @@ function call(name, data) {
   })
 }
 
-/** 提交回执 */
-async function submitRsvp(rsvp) {
+/** 提交回执（带分享码归属站点 + 访客 vid 供后台关联姓名） */
+async function submitRsvp(rsvp, shareCode, vid) {
   return call('submitRsvp', {
     name: rsvp.name,
     phone: rsvp.phone,
     attending: rsvp.attending,
     count: rsvp.count,
     note: rsvp.note,
+    share_code: shareCode || '',
+    vid: vid || '',
   })
 }
 
-/** 回执总数 */
-async function rsvpCount() {
-  const res = await call('getRsvpCount')
+/** 回执总数（按请柬） */
+async function rsvpCount(shareCode) {
+  const res = await call('getRsvpCount', { share_code: shareCode || '' })
   return (res && res.count) || 0
 }
 
 /** 提交祝福 */
-async function submitWish(wish) {
-  return call('submitGreeting', { name: wish.name, text: wish.text })
+async function submitWish(wish, shareCode, vid) {
+  return call('submitGreeting', {
+    name: wish.name,
+    text: wish.text,
+    share_code: shareCode || '',
+    vid: vid || '',
+  })
 }
 
-/** 祝福列表 */
-async function listWishes() {
-  const res = await call('listGreetings')
+/** 祝福列表（按请柬） */
+async function listWishes(shareCode) {
+  const res = await call('listGreetings', { share_code: shareCode || '' })
   return (res && res.items) || []
+}
+
+/* ---------- 访客上报（静默，失败不影响宾客） ---------- */
+
+/**
+ * 上报一次访问 / 推进浏览深度。
+ * 返回 { ok, vid }：vid 是访客稳定标识，前端存下来，分享时带上形成传播链。
+ */
+async function reportVisit(info) {
+  return call('reportVisit', {
+    share_code: (info && info.shareCode) || '',
+    from: (info && info.from) || '',
+    stage: (info && info.stage) || 0,
+    vid: (info && info.vid) || '',
+  })
+}
+
+/* ---------- 后台数据（仅制作人；服务端二次校验 openid 归属） ---------- */
+
+/** 概览：PV/UV/留言/回执 + 趋势 + 传播链 + 浏览深度 */
+async function adminStats() {
+  return call('adminManage', { action: 'stats' })
+}
+
+/** 留言列表（分页） */
+async function adminGreetings(offset) {
+  return call('adminManage', { action: 'listGreetings', offset: offset || 0 })
+}
+
+/** 删除一条留言 */
+async function adminDeleteGreeting(id) {
+  return call('adminManage', { action: 'deleteGreeting', id })
+}
+
+/** 回执名单 + 汇总 */
+async function adminRsvps() {
+  return call('adminManage', { action: 'listRsvps' })
+}
+
+/** 导出（kind: 'rsvp' | 'greeting'）→ { ok, csv, filename } */
+async function adminExport(kind) {
+  return call('adminManage', {
+    action: kind === 'greeting' ? 'exportGreetings' : 'exportRsvps',
+  })
 }
 
 /* ---------- 云端请柬内容 ---------- */
@@ -151,8 +202,21 @@ async function claimSite() {
   return call('claimSite', {})
 }
 
+/* ---------- PC 端扫码登录 ---------- */
+
+/**
+ * 在电脑上点「微信扫码登录」后，手机端扫到码会打开本页，
+ * 用户点确认时调用。scene 是二维码里的随机串。
+ */
+async function webConfirm(scene) {
+  return call('webLogin', { action: 'confirm', scene: scene || '' })
+}
+
 module.exports = {
   submitRsvp, rsvpCount, submitWish, listWishes,
+  reportVisit,
+  adminStats, adminGreetings, adminDeleteGreeting, adminRsvps, adminExport,
   loadMySite, loadSiteByCode, saveProfile, saveMusic, setPublished, aiProcessAll,
   addPhoto, removePhoto, movePhoto, claimSite,
+  webConfirm,
 }

@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/admin/admin",
-    "pages/diagnose/diagnose"
+    "pages/diagnose/diagnose",
+    "pages/webLogin/webLogin"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -15,6 +15,7 @@
 
   <!-- ========== Tab 切换 ========== -->
   <view class="ad-tabs">
+    <view class="ad-tab {{ tab === 'data' ? 'on' : '' }}" data-tab="data" bindtap="switchTab">数据</view>
     <view class="ad-tab {{ tab === 'profile' ? 'on' : '' }}" data-tab="profile" bindtap="switchTab">基本信息</view>
     <view class="ad-tab {{ tab === 'photos' ? 'on' : '' }}" data-tab="photos" bindtap="switchTab">相册</view>
     <view class="ad-tab {{ tab === 'ai' ? 'on' : '' }}" data-tab="ai" bindtap="switchTab">智能处理</view>
@@ -33,8 +34,136 @@
 
   <block wx:else>
 
+    <!-- ================= Tab 0 · 数据看板 ================= -->
+    <scroll-view wx:if="{{ tab === 'data' }}" class="ad-body" scroll-y>
+
+      <view wx:if="{{ dataError }}" class="ad-error">
+        <text class="ad-error-text">{{ dataError }}</text>
+        <view class="ad-btn ad-btn-line" bindtap="loadData">重试</view>
+      </view>
+
+      <block wx:if="{{ stats }}">
+        <!-- 四个关键数字 -->
+        <view class="ad-kpis">
+          <view class="ad-kpi">
+            <text class="ad-kpi-num">{{ stats.overview.pv }}</text>
+            <text class="ad-kpi-label">总访问</text>
+          </view>
+          <view class="ad-kpi">
+            <text class="ad-kpi-num">{{ stats.overview.uv }}</text>
+            <text class="ad-kpi-label">访客数</text>
+          </view>
+          <view class="ad-kpi">
+            <text class="ad-kpi-num">{{ stats.overview.greetings }}</text>
+            <text class="ad-kpi-label">祝福留言</text>
+          </view>
+          <view class="ad-kpi">
+            <text class="ad-kpi-num">{{ stats.overview.rsvps }}</text>
+            <text class="ad-kpi-label">回执</text>
+          </view>
+        </view>
+        <text class="ad-foot-tip">今天 {{ stats.today.pv }} 次访问 · {{ stats.today.uv }} 位访客（同一人 5 分钟内只记一次）</text>
+
+        <!-- 近 14 天访问柱状 -->
+        <view class="ad-card">
+          <text class="ad-card-title">近 14 天访问</text>
+          <view class="ad-chart">
+            <view class="ad-bar-col" wx:for="{{ stats.trend }}" wx:key="day">
+              <text class="ad-bar-num">{{ item.pv || '' }}</text>
+              <view class="ad-bar-track">
+                <view class="ad-bar" style="height: {{ item.h }}%"></view>
+              </view>
+              <text class="ad-bar-day">{{ item.label }}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 浏览深度 -->
+        <view class="ad-card">
+          <text class="ad-card-title">看到第几幕</text>
+          <view class="ad-depth-row" wx:for="{{ stats.depth }}" wx:key="stage">
+            <text class="ad-depth-name">{{ item.name }}</text>
+            <view class="ad-depth-track">
+              <view class="ad-depth-fill" style="width: {{ item.pct }}%"></view>
+            </view>
+            <text class="ad-depth-val">{{ item.visitors }}</text>
+          </view>
+          <text class="ad-foot-tip">数字是「最多看到这一幕」的访客数。后面几幕掉得多，说明大家没滑到底。</text>
+        </view>
+
+        <!-- 传播链 -->
+        <view class="ad-card" wx:if="{{ stats.spread.length }}">
+          <text class="ad-card-title">谁转发带来的访客</text>
+          <view class="ad-spread-row" wx:for="{{ stats.spread }}" wx:key="vid">
+            <text class="ad-spread-name">{{ item.name || ('好友 ' + item.vid) }}</text>
+            <text class="ad-spread-val">带来 {{ item.visitors }} 位访客</text>
+          </view>
+          <text class="ad-foot-tip">留过言或交过回执的亲友能对上名字，其余显示随机标识。</text>
+        </view>
+
+        <!-- 子页签：留言 / 回执 -->
+        <view class="ad-subtabs">
+          <view class="ad-subtab {{ sub === 'wish' ? 'on' : '' }}" data-sub="wish" bindtap="switchSub">祝福留言 {{ stats.overview.greetings }}</view>
+          <view class="ad-subtab {{ sub === 'rsvp' ? 'on' : '' }}" data-sub="rsvp" bindtap="switchSub">回执名单 {{ stats.overview.rsvps }}</view>
+        </view>
+
+        <!-- 留言列表 -->
+        <block wx:if="{{ sub === 'wish' }}">
+          <view class="ad-msg" wx:for="{{ greetings }}" wx:key="id">
+            <view class="ad-msg-head">
+              <text class="ad-msg-name">{{ item.name }}</text>
+              <text class="ad-msg-time">{{ item.time }}</text>
+              <text class="ad-msg-del" data-id="{{ item.id }}" bindtap="deleteGreeting">删除</text>
+            </view>
+            <text class="ad-msg-text">{{ item.text }}</text>
+          </view>
+          <view wx:if="{{ greetingsMore }}" class="ad-add" bindtap="loadMoreGreetings">加载更多…</view>
+          <text wx:if="{{ !greetings.length }}" class="ad-foot-tip">还没有祝福留言。</text>
+          <view wx:if="{{ greetings.length }}" class="ad-actions">
+            <view class="ad-btn ad-btn-line" bindtap="exportGreetings">导出留言</view>
+          </view>
+        </block>
+
+        <!-- 回执名单 -->
+        <block wx:else>
+          <view class="ad-rsvp-sum">
+            <view class="ad-rsvp-cell">
+              <text class="ad-rsvp-num">{{ rsvpSummary.attending }}</text>
+              <text class="ad-rsvp-label">家确认到场</text>
+            </view>
+            <view class="ad-rsvp-cell">
+              <text class="ad-rsvp-num">{{ rsvpSummary.guests }}</text>
+              <text class="ad-rsvp-label">人（含同行）</text>
+            </view>
+            <view class="ad-rsvp-cell">
+              <text class="ad-rsvp-num">{{ rsvpSummary.absent }}</text>
+              <text class="ad-rsvp-label">家遗憾缺席</text>
+            </view>
+          </view>
+          <view class="ad-msg" wx:for="{{ rsvps }}" wx:key="id">
+            <view class="ad-msg-head">
+              <text class="ad-msg-name">{{ item.name }}</text>
+              <text class="ad-tag {{ item.attending ? 'yes' : 'no' }}">{{ item.attending ? '到场' : '缺席' }}</text>
+              <text class="ad-msg-time">{{ item.time }}</text>
+            </view>
+            <text class="ad-msg-text">{{ item.attending ? (item.count + ' 人出席') : '不参加' }}{{ item.phone ? ' · ' + item.phone : '' }}{{ item.note ? ' · ' + item.note : '' }}</text>
+          </view>
+          <text wx:if="{{ !rsvps.length }}" class="ad-foot-tip">还没有回执。</text>
+          <view wx:if="{{ rsvps.length }}" class="ad-actions">
+            <view class="ad-btn ad-btn-line" bindtap="exportRsvps">导出回执名单</view>
+          </view>
+        </block>
+      </block>
+
+      <view wx:elif="{{ dataLoading }}" class="ad-loading">
+        <text class="ad-loading-text">正在统计…</text>
+      </view>
+      <text wx:else class="ad-foot-tip">暂无数据。宾客打开请柬后，这里就会出现数字。</text>
+
+    </scroll-view>
+
     <!-- ================= Tab 1 · 基本信息 ================= -->
-    <scroll-view wx:if="{{ tab === 'profile' }}" class="ad-body" scroll-y>
+    <scroll-view wx:elif="{{ tab === 'profile' }}" class="ad-body" scroll-y>
 
       <view class="ad-card">
         <text class="ad-card-title">新人</text>

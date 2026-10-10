@@ -1,0 +1,31 @@
+<view class="wl-page">
+  <view class="wl-card">
+    <view class="wl-kicker">数据后台</view>
+    <view class="wl-title">电脑端登录确认</view>
+    <view class="wl-sub">有人正在电脑上请求查看你们请柬的数据后台</view>
+
+    <!-- 待确认 -->
+    <block wx:if="{{state === 'idle' || state === 'busy'}}">
+      <view class="wl-avatar"><image src="/images/mp_avatar.jpg" mode="aspectFill" /></view>
+      <view class="wl-tip">确认是你本人操作，再点下面的按钮</view>
+      <!-- 🚨 按钮文字必须单行书写：WXML 会保留源码里的换行/缩进，真机上会把文字挤偏 -->
+      <button class="wl-btn" loading="{{state === 'busy'}}" disabled="{{state === 'busy'}}" bindtap="onConfirm">{{state === 'busy' ? '确认中…' : '确认登录'}}</button>
+    </block>
+
+    <!-- 已完成 -->
+    <block wx:elif="{{state === 'done'}}">
+      <view class="wl-mark is-ok">√</view>
+      <view class="wl-msg">{{msg}}</view>
+      <button class="wl-btn ghost" bindtap="goHome">回到请柬</button>
+    </block>
+
+    <!-- 出错 -->
+    <block wx:else>
+      <view class="wl-mark is-err">!</view>
+      <view class="wl-msg is-err">{{msg}}</view>
+      <button class="wl-btn ghost" bindtap="goHome">回到请柬</button>
+    </block>
+
+    <view class="wl-foot">如果不是你本人操作，直接关掉本页即可</view>
+  </view>
+</view>
