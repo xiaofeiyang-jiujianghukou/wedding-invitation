@@ -109,4 +109,5 @@ PG HTTP API `/v1/rdb/rest`（需账号级 AccessToken）、web-view 套 H5（个
 外链被拖住会阻塞内联脚本→整页僵死）+ 关键异步全部 `withTimeout` 并把错误写进状态栏；
 网页令牌通道必须**补回 openid**、传播链用「我名下所有 vid 的集合」认自己（删小程序换 vid）。
 ⚠️ CloudBase 测试域名对**浏览器**（curl 不触发）先回 404+「风险提醒」页，点「确定访问」才放行。
+2026-10-10 深夜 UI 两修（用户反馈）：① PC 端码上白幕永挂＝`.veil{display:flex}` 压过 UA 的 `[hidden]{display:none}` → 加 `[hidden]{display:none!important}`；② 确认页占位「屏」→ 小程序头像 `images/mp_avatar.jpg`（从码中心裁）。**小程序 `button` 内容一律单行书写**（WXML 保留源码换行 → 真机文字挤偏）+ `.wl-btn` 用 flex 双轴居中。已提交并推送 `0094720`（v1.2），自测 87 项。
 节后待办：故事三段真实文案、后台保存闭环、清理 `wedding/sites/_staging/*.jpg`、小程序码落地页。细节见同目录 `2026-09-29.md` / `2026-10-10.md`。
